@@ -86,13 +86,12 @@ class TaskManager:
             prompt = f"""Task: {task_description}
 Current progress: {self.actions_completed} actions completed
 
-Return a JSON object with:
-- "action": action type (click, type, press, scroll, navigate, wait, screenshot, done)
-- "params": parameters for the action
-- "confidence": confidence score (0-1)
-- "reasoning": brief explanation
-
-If task is complete, return {{"action": "done", "params": {{}}, "confidence": 1.0}}"""
+Respond with ONLY valid JSON, no other text:
+{{"action": "done"}} if task is complete.
+{{"action": "type", "params": {{"text": "what to type"}}}} to type text.
+{{"action": "click", "params": {{"x": 100, "y": 200}}}} to click coordinates.
+{{"action": "navigate", "params": {{"url": "https://..."}}}} to open a website.
+{{"action": "screenshot", "params": {{"reason": "what to look for"}}}} to analyze screen."""
 
             response = self.api_manager.call_api(prompt, screenshot_base64)
 
@@ -147,10 +146,21 @@ If task is complete, return {{"action": "done", "params": {{}}, "confidence": 1.
         return None
 
     def _parse_action(self, response: str) -> Optional[Action]:
+        if not response or not response.strip():
+            return None
+
         try:
             data = json.loads(response)
             return Action.from_dict(data)
         except json.JSONDecodeError:
+            try:
+                start = response.find('{')
+                end = response.rfind('}') + 1
+                if start != -1 and end > start:
+                    data = json.loads(response[start:end])
+                    return Action.from_dict(data)
+            except:
+                pass
             logger.warning(f"Could not parse action response: {response[:100]}...")
             return None
 
