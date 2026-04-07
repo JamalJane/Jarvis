@@ -44,9 +44,8 @@ class APIManager:
                 continue
 
             try:
-                import google.generativeai as genai
-                genai.configure(api_key=key)
-                model = genai.GenerativeModel('gemini-2.0-flash')
+                from google import genai
+                client = genai.Client(api_key=key)
 
                 content = [prompt]
                 if image_base64:
@@ -58,7 +57,10 @@ class APIManager:
                     img = Image.open(io.BytesIO(img_data))
                     content.append(img)
 
-                response = model.generate_content(content)
+                response = client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    contents=content
+                )
                 self.request_counts[API_KEYS[self.current_key_index]] += 1
                 logger.info(f"API call succeeded with {API_KEYS[self.current_key_index]}")
                 return response.text
