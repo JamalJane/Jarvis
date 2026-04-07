@@ -14,6 +14,7 @@ TEXT INPUT:
   screenshot [prompt]   - Screenshot analysis
 
 CONTROL:
+  open browser          - Open browser manually
   done                  - End current task
   stop                  - Abort all tasks
   resume                - Continue paused task

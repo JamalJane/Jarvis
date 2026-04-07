@@ -77,6 +77,10 @@ class Jarvis:
                     self._execute_resumed_task(state)
                 continue
 
+            if user_input.lower() == "open browser":
+                self._open_browser()
+                continue
+
             if user_input.lower() in ["done", "stop"]:
                 Display.status("Task ended")
                 continue
@@ -93,26 +97,60 @@ class Jarvis:
         Display.status("Voice mode active")
         return run_voice_query()
 
-    def _execute_query(self, query: str):
-        Display.status(f"Starting task: {query}")
+    def _needs_browser(self, query: str) -> bool:
+        browser_keywords = [
+            "go to", "goto", "navigate", "open", "browse", "visit",
+            "search", "google", "reddit", "twitter", "facebook",
+            "youtube", "github", "website", ".com", ".org", ".io",
+            "http", "click", "scroll", "login", "sign in", "fill",
+            "scrape", "extract", "download from", "post on",
+        ]
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in browser_keywords)
 
-        try:
+    def _open_browser(self):
+        if not self.browser.is_running():
+            if not self.browser.start():
+                Display.error("Failed to start browser")
+                return
+        Display.success("Browser opened")
+        self.browser.navigate("https://www.google.com")
+
+    def _execute_query(self, query: str):
+        Display.status(f"Processing: {query}")
+
+        if self._needs_browser(query):
             if not self.browser.is_running():
+                Display.status("Opening browser...")
                 if not self.browser.start():
                     Display.error("Failed to start browser")
                     return
-
             self.browser.navigate("https://www.google.com")
+        else:
+            result = self._process_non_browser_query(query)
+            if result:
+                return
 
+        try:
             result = self.task_manager.execute_task(query)
             if result.success:
                 Display.success(f"Task completed: {result.actions_completed} actions")
             else:
                 Display.error(f"Task failed: {result.error}")
-
         except Exception as e:
             logger.error(f"Task failed: {e}")
             Display.error(f"Task failed: {e}")
+
+    def _process_non_browser_query(self, query: str):
+        try:
+            Display.status("Sending to AI...")
+            response = self.api_manager.call_api(query)
+            Display.success(response)
+            return True
+        except Exception as e:
+            logger.error(f"Query failed: {e}")
+            Display.error(f"Query failed: {e}")
+            return False
 
     def _execute_resumed_task(self, state):
         logger.info(f"Resuming task: {state.task_name}")
