@@ -99,11 +99,12 @@ class Jarvis:
 
     def _needs_browser(self, query: str) -> bool:
         browser_keywords = [
-            "go to", "goto", "navigate", "open", "browse", "visit",
-            "search", "google", "reddit", "twitter", "facebook",
-            "youtube", "github", "website", ".com", ".org", ".io",
-            "http", "click", "scroll", "login", "sign in", "fill",
-            "scrape", "extract", "download from", "post on",
+            "go to ", "goto ", "navigate to", "open ", "browse to", "visit ",
+            "search for", "search on", "on google", "on reddit", "on twitter",
+            "on facebook", "on youtube", "on github", ".com", ".org", ".io",
+            "http://", "https://", "click ", "scroll ", "login", "sign in",
+            "fill in", "scrape ", "extract from", "download from", "post on",
+            "browser", "website",
         ]
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in browser_keywords)

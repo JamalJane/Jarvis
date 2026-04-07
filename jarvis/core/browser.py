@@ -12,10 +12,16 @@ class BrowserController:
         self.wait = None
 
     def start(self):
+        if self.driver:
+            try:
+                self.driver.current_url
+                return True
+            except:
+                self.driver = None
+
         try:
             from selenium import webdriver
             from selenium.webdriver.chrome.options import Options
-            from selenium.webdriver.chrome.service import Service
             from selenium.webdriver.support.ui import WebDriverWait
         except ImportError:
             logger.error("Selenium not installed. Run: pip install selenium")
@@ -38,16 +44,31 @@ class BrowserController:
             logger.error(f"Failed to start browser: {e}")
             return False
 
-    def navigate(self, url: str):
+    def _ensure_running(self) -> bool:
         if not self.driver:
-            logger.error("Browser not started")
+            return self.start()
+        try:
+            self.driver.current_url
+            return True
+        except:
+            logger.warning("Browser crashed, restarting...")
+            self.driver = None
+            return self.start()
+
+    def navigate(self, url: str):
+        if not self._ensure_running():
+            logger.error("Browser not running")
             return False
         logger.info(f"Navigating to: {url}")
-        self.driver.get(url)
-        return True
+        try:
+            self.driver.get(url)
+            return True
+        except Exception as e:
+            logger.error(f"Navigation failed: {e}")
+            return False
 
     def click(self, selector: str, by: str = "css"):
-        if not self.driver:
+        if not self._ensure_running():
             return False
         from selenium.webdriver.common.by import By
 
@@ -72,7 +93,7 @@ class BrowserController:
             return False
 
     def type_text(self, selector: str, text: str, by: str = "css"):
-        if not self.driver:
+        if not self._ensure_running():
             return False
         from selenium.webdriver.common.by import By
 
@@ -97,26 +118,32 @@ class BrowserController:
             return False
 
     def get_dom(self) -> str:
-        if not self.driver:
+        if not self._ensure_running():
             return ""
-        return self.driver.page_source
+        try:
+            return self.driver.page_source
+        except:
+            return ""
 
     def get_title(self) -> str:
-        if not self.driver:
+        if not self._ensure_running():
             return ""
-        return self.driver.title
+        try:
+            return self.driver.title
+        except:
+            return ""
 
     def get_screenshot(self) -> Optional[bytes]:
-        if not self.driver:
+        if not self._ensure_running():
             return None
         try:
             return self.driver.get_screenshot_as_png()
         except Exception as e:
-            logger.error(f"Screenshot failed: {e}")
+            logger.warning(f"Screenshot failed: {e}")
             return None
 
     def wait_for_element(self, selector: str, by: str = "css", timeout: int = 10):
-        if not self.driver:
+        if not self._ensure_running():
             return None
         from selenium.webdriver.common.by import By
 
@@ -138,9 +165,19 @@ class BrowserController:
 
     def close(self):
         if self.driver:
-            self.driver.quit()
+            try:
+                self.driver.quit()
+            except:
+                pass
             self.driver = None
             logger.info("Browser closed")
 
     def is_running(self) -> bool:
-        return self.driver is not None
+        if not self.driver:
+            return False
+        try:
+            self.driver.current_url
+            return True
+        except:
+            self.driver = None
+            return False
