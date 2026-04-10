@@ -1,0 +1,116 @@
+<svg viewBox="0 0 700 1100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #2d3748; stroke: #4299e1; stroke-width: 2; }
+      .start { fill: #48bb78; stroke: #38a169; stroke-width: 2; }
+      .end { fill: #f56565; stroke: #c53030; stroke-width: 2; }
+      .decision { fill: #ed8936; stroke: #dd6b20; stroke-width: 2; }
+      .text { fill: #ffffff; font-family: Arial; font-size: 12px; text-anchor: middle; }
+      .title { fill: #ffffff; font-family: Arial; font-size: 18px; font-weight: bold; text-anchor: middle; }
+      .arrow { stroke: #cbd5e0; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#cbd5e0" />
+    </marker>
+  </defs>
+
+  <text x="350" y="30" class="title">FLOW 6: RESUME TASK</text>
+
+  <!-- Part 1: Interrupt -->
+  <text x="100" y="70" class="title" style="font-size: 14px; text-anchor: start;">PART 1: INTERRUPT</text>
+
+  <!-- Task running -->
+  <rect x="125" y="100" width="450" height="60" class="start" rx="10"/>
+  <text x="350" y="135" class="text">Task running (action 23/50)</text>
+
+  <path d="M 350 160 L 350 190" class="arrow"/>
+
+  <!-- User presses Ctrl+C -->
+  <rect x="125" y="190" width="450" height="60" class="box" rx="5"/>
+  <text x="350" y="225" class="text">User presses Ctrl+C</text>
+
+  <path d="M 350 250 L 350 280" class="arrow"/>
+
+  <!-- Display shutdown message -->
+  <rect x="125" y="280" width="450" height="80" class="box" rx="5"/>
+  <text x="350" y="305" class="text">Display: "Shutting down gracefully..."</text>
+  <text x="350" y="325" class="text">"Press Ctrl+C again to force quit"</text>
+
+  <path d="M 350 360 L 350 390" class="arrow"/>
+
+  <!-- Close browser -->
+  <rect x="125" y="390" width="450" height="60" class="box" rx="5"/>
+  <text x="350" y="425" class="text">Close Selenium browser</text>
+
+  <path d="M 350 450 L 350 480" class="arrow"/>
+
+  <!-- Save task state -->
+  <rect x="125" y="480" width="450" height="80" class="box" rx="5"/>
+  <text x="350" y="505" class="text">Save to ~/.jarvis/resume.json:</text>
+  <text x="350" y="525" class="text">- Task name, progress (23/50)</text>
+  <text x="350" y="545" class="text">- Screenshots, context, state</text>
+
+  <path d="M 350 560 L 350 590" class="arrow"/>
+
+  <!-- Display saved -->
+  <rect x="125" y="590" width="450" height="80" class="box" rx="5"/>
+  <text x="350" y="615" class="text">Display: "Task paused at action 23/50"</text>
+  <text x="350" y="635" class="text">"Type 'resume' to continue"</text>
+
+  <path d="M 350 670 L 350 700" class="arrow"/>
+
+  <!-- Exit -->
+  <rect x="125" y="700" width="450" height="60" class="end" rx="10"/>
+  <text x="350" y="735" class="text">Terminal closes</text>
+
+  <!-- Part 2: Resume -->
+  <text x="100" y="790" class="title" style="font-size: 14px; text-anchor: start;">PART 2: RESUME</text>
+
+  <!-- User opens Jarvis -->
+  <rect x="125" y="820" width="450" height="60" class="start" rx="10"/>
+  <text x="350" y="855" class="text">User presses Ctrl+Alt+J (reopens Jarvis)</text>
+
+  <path d="M 350 880 L 350 910" class="arrow"/>
+
+  <!-- Load startup summary -->
+  <rect x="125" y="910" width="450" height="60" class="box" rx="5"/>
+  <text x="350" y="935" class="text">Load startup summary</text>
+  <text x="350" y="955" class="text">(includes paused task indicator)</text>
+
+  <path d="M 350 970 L 350 1000" class="arrow"/>
+
+  <!-- Display paused indicator -->
+  <rect x="125" y="1000" width="450" height="80" class="box" rx="5"/>
+  <text x="350" y="1025" class="text">Display: "⚠ Previous task paused:"</text>
+  <text x="350" y="1045" class="text">"search reddit (23/50 actions)"</text>
+
+  <path d="M 350 1080 L 350 1110" class="arrow"/>
+
+  <!-- Ready for input -->
+  <rect x="125" y="1110" width="450" height="60" class="box" rx="5"/>
+  <text x="350" y="1145" class="text">Display: "What do you need?"</text>
+
+  <path d="M 350 1170 L 350 1190" class="arrow"/>
+
+  <!-- User types resume -->
+  <polygon points="350,1190 450,1240 350,1290 250,1240" class="decision"/>
+  <text x="350" y="1245" class="text">User types</text>
+  <text x="350" y="1260" class="text">"resume"?</text>
+
+  <!-- User types resume: yes -->
+  <path d="M 450 1240 L 550 1240 L 550 920 L 575 920" class="arrow"/>
+  <text x="500" y="1230" class="text">Yes</text>
+
+  <!-- Load saved state -->
+  <rect x="500" y="890" width="150" height="60" class="box" rx="5"/>
+  <text x="575" y="910" class="text">Load saved</text>
+  <text x="575" y="930" class="text">state from JSON</text>
+
+  <!-- User does something else -->
+  <path d="M 350 1290 L 350 1330" class="arrow"/>
+  <text x="330" y="1310" class="text">No</text>
+
+  <!-- Continue with normal flow -->
+  <rect x="125" y="1330" width="450" height="60" class="end" rx="10"/>
+  <text x="350" y="1365" class="text">Continue with new task or command</text>
+</svg>

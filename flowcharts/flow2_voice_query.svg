@@ -1,0 +1,82 @@
+<svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #2d3748; stroke: #4299e1; stroke-width: 2; }
+      .start { fill: #48bb78; stroke: #38a169; stroke-width: 2; }
+      .end { fill: #f56565; stroke: #c53030; stroke-width: 2; }
+      .api { fill: #9f7aea; stroke: #805ad5; stroke-width: 2; }
+      .text { fill: #ffffff; font-family: Arial; font-size: 14px; text-anchor: middle; }
+      .title { fill: #ffffff; font-family: Arial; font-size: 18px; font-weight: bold; text-anchor: middle; }
+      .arrow { stroke: #cbd5e0; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#cbd5e0" />
+    </marker>
+  </defs>
+
+  <text x="300" y="30" class="title">FLOW 2: VOICE QUERY</text>
+
+  <!-- User presses Enter -->
+  <rect x="150" y="60" width="300" height="60" class="start" rx="10"/>
+  <text x="300" y="95" class="text">User presses Enter</text>
+
+  <path d="M 300 120 L 300 150" class="arrow"/>
+
+  <!-- Display listening -->
+  <rect x="150" y="150" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="185" class="text">Display: "Listening..."</text>
+
+  <path d="M 300 210 L 300 240" class="arrow"/>
+
+  <!-- Record audio -->
+  <rect x="150" y="240" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="270" class="text">Record audio from microphone</text>
+  <text x="300" y="290" class="text">(until Enter pressed or 5s silence)</text>
+
+  <path d="M 300 300 L 300 330" class="arrow"/>
+
+  <!-- User stops listening -->
+  <rect x="150" y="330" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="360" class="text">User presses Enter to stop</text>
+  <text x="300" y="380" class="text">OR 5 seconds of silence</text>
+
+  <path d="M 300 390 L 300 420" class="arrow"/>
+
+  <!-- Display processing -->
+  <rect x="150" y="420" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="455" class="text">Display: "Processing..."</text>
+
+  <path d="M 300 480 L 300 510" class="arrow"/>
+
+  <!-- Google STT API -->
+  <rect x="150" y="510" width="300" height="60" class="api" rx="5"/>
+  <text x="300" y="540" class="text">Google STT API</text>
+  <text x="300" y="560" class="text">Convert audio → text</text>
+
+  <path d="M 300 570 L 300 600" class="arrow"/>
+
+  <!-- Send to LLM API -->
+  <rect x="150" y="600" width="300" height="60" class="api" rx="5"/>
+  <text x="300" y="630" class="text">Send to Gemini/Grok API</text>
+  <text x="300" y="650" class="text">Get response</text>
+
+  <path d="M 300 660 L 300 690" class="arrow"/>
+
+  <!-- Convert to speech -->
+  <rect x="150" y="690" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="720" class="text">pyttsx3 converts response</text>
+  <text x="300" y="740" class="text">to speech (male, normal speed)</text>
+
+  <path d="M 300 750 L 300 780" class="arrow"/>
+
+  <!-- Play audio + display -->
+  <rect x="150" y="780" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="810" class="text">Play audio + Display text</text>
+  <text x="300" y="830" class="text">"What do you need?"</text>
+
+  <path d="M 300 840 L 300 870" class="arrow"/>
+
+  <!-- Ready -->
+  <rect x="150" y="870" width="300" height="60" class="end" rx="10"/>
+  <text x="300" y="905" class="text">Ready for next input</text>
+</svg>

@@ -19,16 +19,8 @@ def run_startup(api_manager: APIManager) -> str:
 
 
 def load_startup_summary() -> str:
-    log_file = "logs/jarvis.log"
-    if not os.path.exists(log_file):
-        return "No recent activity"
-
-    try:
-        with open(log_file, "r") as f:
-            lines = f.readlines()[-10:]
-        return "\n".join(lines) if lines else "No recent activity"
-    except Exception:
-        return "No recent activity"
+    # Removed raw log generation because httpx/API debug logs were ruining the aesthetic user prompt.
+    return "Core memory modules initialized and system processes ready."
 
 
 def display_api_status(api_manager: APIManager):

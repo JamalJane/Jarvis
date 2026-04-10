@@ -1,0 +1,63 @@
+<svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #2d3748; stroke: #4299e1; stroke-width: 2; }
+      .start { fill: #48bb78; stroke: #38a169; stroke-width: 2; }
+      .end { fill: #f56565; stroke: #c53030; stroke-width: 2; }
+      .text { fill: #ffffff; font-family: Arial; font-size: 14px; text-anchor: middle; }
+      .title { fill: #ffffff; font-family: Arial; font-size: 18px; font-weight: bold; text-anchor: middle; }
+      .arrow { stroke: #cbd5e0; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#cbd5e0" />
+    </marker>
+  </defs>
+
+  <text x="300" y="30" class="title">FLOW 1: STARTUP</text>
+
+  <!-- User presses hotkey -->
+  <rect x="150" y="60" width="300" height="60" class="start" rx="10"/>
+  <text x="300" y="95" class="text">User presses Ctrl+Alt+J</text>
+
+  <path d="M 300 120 L 300 150" class="arrow"/>
+
+  <!-- Daemon spawns terminal -->
+  <rect x="150" y="150" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="180" class="text">Daemon spawns</text>
+  <text x="300" y="200" class="text">new terminal window</text>
+
+  <path d="M 300 210 L 300 240" class="arrow"/>
+
+  <!-- Load startup data -->
+  <rect x="150" y="240" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="270" class="text">Load startup summary</text>
+  <text x="300" y="290" class="text">(yesterday, API status, errors)</text>
+
+  <path d="M 300 300 L 300 330" class="arrow"/>
+
+  <!-- Display greeting -->
+  <rect x="150" y="330" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="360" class="text">Display: "Hello bashdakid0 👋"</text>
+  <text x="300" y="380" class="text">+ summary + table</text>
+
+  <path d="M 300 390 L 300 420" class="arrow"/>
+
+  <!-- Display prompt -->
+  <rect x="150" y="420" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="450" class="text">Display prompt:</text>
+  <text x="300" y="470" class="text">"What do you need?"</text>
+
+  <path d="M 300 480 L 300 510" class="arrow"/>
+
+  <!-- Wait for input -->
+  <rect x="150" y="510" width="300" height="60" class="box" rx="5"/>
+  <text x="300" y="540" class="text">Await user input</text>
+  <text x="300" y="560" class="text">(voice/text/command)</text>
+
+  <path d="M 300 570 L 300 600" class="arrow"/>
+
+  <!-- Ready for next action -->
+  <rect x="150" y="600" width="300" height="60" class="end" rx="10"/>
+  <text x="300" y="630" class="text">Ready for next flow</text>
+  <text x="300" y="650" class="text">(voice/task/command)</text>
+</svg>

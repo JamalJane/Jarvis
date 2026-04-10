@@ -1,0 +1,69 @@
+<svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #2d3748; stroke: #4299e1; stroke-width: 2; }
+      .start { fill: #48bb78; stroke: #38a169; stroke-width: 2; }
+      .end { fill: #f56565; stroke: #c53030; stroke-width: 2; }
+      .text { fill: #ffffff; font-family: Arial; font-size: 13px; text-anchor: middle; }
+      .title { fill: #ffffff; font-family: Arial; font-size: 18px; font-weight: bold; text-anchor: middle; }
+      .arrow { stroke: #cbd5e0; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .help { fill: #4c51bf; stroke: #3c366b; stroke-width: 2; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#cbd5e0" />
+    </marker>
+  </defs>
+
+  <text x="300" y="30" class="title">FLOW 7: HELP COMMAND</text>
+
+  <!-- User types /help -->
+  <rect x="100" y="60" width="400" height="60" class="start" rx="10"/>
+  <text x="300" y="95" class="text">User types: /help</text>
+
+  <path d="M 300 120 L 300 150" class="arrow"/>
+
+  <!-- Display help header -->
+  <rect x="100" y="150" width="400" height="60" class="help" rx="5"/>
+  <text x="300" y="180" class="text">Display: "═════════════════"</text>
+  <text x="300" y="200" class="text">"HELP & COMMANDS"</text>
+
+  <path d="M 300 210 L 300 240" class="arrow"/>
+
+  <!-- Display voice commands -->
+  <rect x="100" y="240" width="400" height="80" class="box" rx="5"/>
+  <text x="300" y="260" class="text">Display voice section:</text>
+  <text x="300" y="280" class="text">"[Press Enter] - Start listening"</text>
+  <text x="300" y="300" class="text">"[Press Enter again] - Stop"</text>
+
+  <path d="M 300 320 L 300 350" class="arrow"/>
+
+  <!-- Display text input commands -->
+  <rect x="100" y="350" width="400" height="80" class="box" rx="5"/>
+  <text x="300" y="370" class="text">Display text input section:</text>
+  <text x="300" y="390" class="text">"type [command] - Text query"</text>
+  <text x="300" y="410" class="text">"screenshot [prompt]"</text>
+
+  <path d="M 300 430 L 300 460" class="arrow"/>
+
+  <!-- Display control commands -->
+  <rect x="100" y="460" width="400" height="100" class="box" rx="5"/>
+  <text x="300" y="480" class="text">Display control section:</text>
+  <text x="300" y="500" class="text">"done/stop - End task"</text>
+  <text x="300" y="520" class="text">"resume - Continue paused task"</text>
+  <text x="300" y="540" class="text">"view history - 7-day summary"</text>
+
+  <path d="M 300 560 L 300 590" class="arrow"/>
+
+  <!-- Display examples -->
+  <rect x="100" y="590" width="400" height="80" class="box" rx="5"/>
+  <text x="300" y="610" class="text">Display examples section:</text>
+  <text x="300" y="630" class="text">"search reddit for monke"</text>
+  <text x="300" y="650" class="text">"extract top 5 posts + votes"</text>
+
+  <path d="M 300 670 L 300 700" class="arrow"/>
+
+  <!-- Return to prompt -->
+  <rect x="100" y="700" width="400" height="60" class="end" rx="10"/>
+  <text x="300" y="725" class="text">Display: "What do you need?"</text>
+  <text x="300" y="745" class="text">Ready for next input</text>
+</svg>

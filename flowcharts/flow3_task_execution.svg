@@ -1,0 +1,119 @@
+<svg viewBox="0 0 700 1400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #2d3748; stroke: #4299e1; stroke-width: 2; }
+      .start { fill: #48bb78; stroke: #38a169; stroke-width: 2; }
+      .end { fill: #f56565; stroke: #c53030; stroke-width: 2; }
+      .api { fill: #9f7aea; stroke: #805ad5; stroke-width: 2; }
+      .decision { fill: #ed8936; stroke: #dd6b20; stroke-width: 2; }
+      .text { fill: #ffffff; font-family: Arial; font-size: 12px; text-anchor: middle; }
+      .title { fill: #ffffff; font-family: Arial; font-size: 18px; font-weight: bold; text-anchor: middle; }
+      .arrow { stroke: #cbd5e0; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#cbd5e0" />
+    </marker>
+  </defs>
+
+  <text x="350" y="30" class="title">FLOW 3: TASK EXECUTION (WEB)</text>
+
+  <!-- User input -->
+  <rect x="175" y="60" width="350" height="60" class="start" rx="10"/>
+  <text x="350" y="95" class="text">User: screenshot "search reddit for monke"</text>
+
+  <path d="M 350 120 L 350 150" class="arrow"/>
+
+  <!-- Start task -->
+  <rect x="175" y="150" width="350" height="60" class="box" rx="5"/>
+  <text x="350" y="175" class="text">Display: "Starting task:"</text>
+  <text x="350" y="195" class="text">"search reddit for monke"</text>
+
+  <path d="M 350 210 L 350 240" class="arrow"/>
+
+  <!-- Launch browser -->
+  <rect x="175" y="240" width="350" height="60" class="box" rx="5"/>
+  <text x="350" y="265" class="text">Display: "Launching browser..."</text>
+  <text x="350" y="285" class="text">Selenium opens (visible)</text>
+
+  <path d="M 350 300 L 350 330" class="arrow"/>
+
+  <!-- Take screenshot -->
+  <rect x="175" y="330" width="350" height="60" class="box" rx="5"/>
+  <text x="350" y="360" class="text">Take screenshot + compress 50%</text>
+
+  <path d="M 350 390 L 350 420" class="arrow"/>
+
+  <!-- Send to API -->
+  <rect x="175" y="420" width="350" height="60" class="api" rx="5"/>
+  <text x="350" y="450" class="text">Send screenshot + task to API</text>
+  <text x="350" y="470" class="text">"What's the next action?"</text>
+
+  <path d="M 350 480 L 350 510" class="arrow"/>
+
+  <!-- API returns action -->
+  <rect x="175" y="510" width="350" height="60" class="api" rx="5"/>
+  <text x="350" y="540" class="text">API returns JSON action:</text>
+  <text x="350" y="560" class="text">{action, params, confidence}</text>
+
+  <path d="M 350 570 L 350 600" class="arrow"/>
+
+  <!-- Check confidence -->
+  <polygon points="350,600 450,650 350,700 250,650" class="decision"/>
+  <text x="350" y="650" class="text">Confidence</text>
+  <text x="350" y="665" class="text">>70%?</text>
+
+  <!-- Low confidence -->
+  <path d="M 250 650 L 150 650" class="arrow"/>
+  <rect x="25" y="620" width="250" height="60" class="box" rx="5"/>
+  <text x="150" y="645" class="text">Display: "Low confidence (65%)"</text>
+  <text x="150" y="665" class="text">"Proceed? (y/n)"</text>
+
+  <!-- High confidence (auto-execute) -->
+  <path d="M 350 700 L 350 730" class="arrow"/>
+  <rect x="175" y="730" width="350" height="60" class="box" rx="5"/>
+  <text x="350" y="755" class="text">Auto-execute action</text>
+
+  <!-- Merge paths -->
+  <path d="M 150 680 L 150 760 L 175 760" class="arrow"/>
+
+  <path d="M 350 790 L 350 820" class="arrow"/>
+
+  <!-- Execute action -->
+  <rect x="175" y="820" width="350" height="60" class="box" rx="5"/>
+  <text x="350" y="845" class="text">Execute action</text>
+  <text x="350" y="865" class="text">(Selenium + pyautogui)</text>
+
+  <path d="M 350 880 L 350 910" class="arrow"/>
+
+  <!-- Display action -->
+  <rect x="175" y="910" width="350" height="60" class="box" rx="5"/>
+  <text x="350" y="935" class="text">Display: "✓ Action successful"</text>
+  <text x="350" y="955" class="text">OR "⚠ Action failed"</text>
+
+  <path d="M 350 970 L 350 1000" class="arrow"/>
+
+  <!-- Progress bar -->
+  <rect x="175" y="1000" width="350" height="60" class="box" rx="5"/>
+  <text x="350" y="1025" class="text">Display progress:</text>
+  <text x="350" y="1045" class="text">"[████░░░░░░] 1/50 actions"</text>
+
+  <path d="M 350 1060 L 350 1090" class="arrow"/>
+
+  <!-- Loop check -->
+  <polygon points="350,1090 450,1140 350,1190 250,1140" class="decision"/>
+  <text x="350" y="1140" class="text">User said</text>
+  <text x="350" y="1155" class="text">"done"?</text>
+
+  <!-- Continue loop -->
+  <path d="M 250 1140 L 100 1140 L 100 770 L 175 770" class="arrow"/>
+  <text x="130" y="960" class="text">No</text>
+
+  <!-- Done -->
+  <path d="M 350 1190 L 350 1220" class="arrow"/>
+  <text x="380" y="1200" class="text">Yes</text>
+
+  <!-- Task complete -->
+  <rect x="175" y="1220" width="350" height="60" class="end" rx="10"/>
+  <text x="350" y="1250" class="text">Display task summary + log</text>
+  <text x="350" y="1270" class="text">Return to: "What do you need?"</text>
+</svg>

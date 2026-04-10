@@ -5,6 +5,10 @@ import logging
 import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env from the project root before anything else reads env vars
+load_dotenv(Path(__file__).parent / ".env")
 
 os.makedirs("logs", exist_ok=True)
 
@@ -17,18 +21,13 @@ logging.basicConfig(
     ]
 )
 
-
 def main():
-    from jarvis.main_loop import Jarvis
+    from jarvis.main_loop import main as cli_main
 
-    jarvis = Jarvis()
     try:
-        jarvis.run()
+        cli_main()
     except KeyboardInterrupt:
         print("\nShutting down...")
-    finally:
-        jarvis.cleanup()
-
 
 if __name__ == "__main__":
     main()

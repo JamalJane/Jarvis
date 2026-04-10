@@ -1,0 +1,252 @@
+================================================================================
+                                  JARVIS
+                Autonomous AI Assistant & Screen Automation Agent
+                    Product Requirements Document
+                        Version 5.1 (4 Gemini Keys)
+                              April 2026
+================================================================================
+
+JARVIS: THE COMPLETE PICTURE
+================================================================================
+
+Jarvis is a free, intelligent desktop automation agent that starts as a hybrid 
+context system (DOM + screenshots) and evolves into a predictive state machine 
+through Pinecone-powered learning. It combines multi-key API fallback (4 Gemini 
+keys), web/OS automation (Selenium + pyautogui), universal app launching, and 
+silent vector memory to create a personal AI that gets smarter with every 
+task—without screenshots slowing it down.
+
+
+What Makes Jarvis Different
+================================================================================
+
+• Starts simple (screenshots), learns to predict (no screenshots)
+• Uses free Gemini API with 4-key fallback strategy
+• Silent learning (Pinecone vector memory, no notifications)
+• Gets faster over time (fewer screenshots, better predictions)
+• Runs on weak PCs (lightweight, hotkey-triggered)
+• No coding needed (natural language automation)
+
+
+================================================================================
+1. API MANAGEMENT (4 GEMINI KEYS)
+================================================================================
+
+STEP 5: API Management (Updated)
+
+• Storage: .env file (plaintext, local only)
+• Keys: 4 Gemini API keys (GEMINI_KEY_1, GEMINI_KEY_2, GEMINI_KEY_3, GEMINI_KEY_4)
+• Health checks: On startup AND whenever a key fails
+• Fallback order: Gemini 1 → Gemini 2 → Gemini 3 → Gemini 4
+• Timezone: EST for daily reset boundaries
+• Daily quota per key: ~1M tokens (free tier)
+• No token tracking: Log usage but don't calculate (overhead)
+
+Fallback Logic
+================================================================================
+
+On API call failure (timeout, rate limit, error): Immediately move to next 
+Gemini key. Log which key failed and at what time. Continue seamlessly—user 
+doesn't notice. If all 4 keys fail, ask user for manual input. Reset tracking 
+daily at midnight EST.
+
+Startup Display Update
+================================================================================
+
+API Status section now shows: Gemini 1 (1,847/2,000 requests), Gemini 2 
+(1,920/2,000), Gemini 3 (1,800/2,000), Gemini 4 (1,650/2,000). Only shows 
+remaining quota per key, no complex calculations.
+
+
+================================================================================
+2. CORE ARCHITECTURE (Steps 1-4, 6-27)
+================================================================================
+
+All other steps remain unchanged from previous PRD: hotkey system, voice I/O, 
+screenshot/camera, agent loop, safety harness, logging, Selenium/pyautogui, 
+daemon management, task parsing, state management, retry logic, action format, 
+compression, security, dependencies, keyboard handling, camera integration, 
+voice edge cases, Pinecone integration, learning & pattern recognition, context 
+injection, vector lifecycle, context optimization (hybrid to predictive), 
+confidence scoring, and context selection strategy.
+
+
+================================================================================
+3. HYBRID → PREDICTIVE CONTEXT SYSTEM
+================================================================================
+
+STEP 25: Context Optimization (Hybrid to Predictive State Machine)
+
+Jarvis starts with hybrid context (DOM extraction for web, screenshots for OS) 
+and evolves into a predictive state machine through continuous learning. Over 
+time, screenshots are replaced by accurate predictions based on historical 
+action outcomes, dramatically improving speed and token efficiency.
+
+Phase 1: Hybrid Data Collection (Tasks 1-20)
+================================================================================
+
+• Web tasks: Extract DOM (HTML structure) instead of always screenshotting
+• OS tasks: Screenshot (necessary for pixel-level tasks)
+• Collect transition data: Action → Before state → After state
+• Store in Pinecone: Action type, before/after DOM/screenshot, success result
+• Build baseline: Screenshots still used for analysis, but data is captured
+• No user impact: Process is silent, user still gets results
+
+Phase 2: Prediction Learning (Tasks 21-100)
+================================================================================
+
+• After 20+ similar actions recorded: Query Pinecone for pattern
+• Analyze: What happens when user clicks button X? Scrolls down? Types text?
+• Predict outcome: 'This click will show dropdown with 5 items'
+• Confidence threshold: >85% similarity = predict without screenshot
+• Fallback: If confidence <85%, take screenshot and verify
+• Continuous improvement: Compare prediction to actual, adjust confidence
+• Result: By task 100, ~40-50% of actions execute without screenshots
+
+Phase 3: Full Predictive (Tasks 100+)
+================================================================================
+
+• Mature model: Thousands of action outcomes recorded
+• High confidence: Most common actions predicted accurately (>90% confidence)
+• Rare/new actions: Still use screenshots (necessary unknowns)
+• Performance: ~70% fewer screenshots than initial phase
+• Speed: Actions execute 2-3x faster
+• Tokens: 60-70% fewer API calls (no screenshot analysis needed)
+
+Data Collected per Action
+================================================================================
+
+For each executed action, Jarvis stores: action type (click/type/scroll/navigate), 
+action target (element/coordinate), before state (DOM hash, screenshot hash), 
+after state (DOM hash, screenshot hash), screenshot difference score, DOM changed 
+(boolean), action success (boolean), task type (web/os), timestamp, and execution 
+duration.
+
+Prediction Algorithm
+================================================================================
+
+On new action: (1) Embed action description as vector, (2) Query Pinecone for 
+top-5 similar past actions, (3) Filter for success=true outcomes, (4) If 3+ 
+matches with >0.85 similarity, aggregate predicted results and return with 
+confidence score, (5) If confidence ≥85%, use prediction; otherwise, take 
+screenshot and verify.
+
+Fallback & Verification
+================================================================================
+
+• Always take screenshot if: action type is rare, target is new, confidence <85%
+• Compare prediction to actual: Calculate diff between predicted and actual state
+• If diff <10%: Prediction was accurate, increase confidence for this pattern
+• If diff >10%: Prediction was wrong, flag for more data collection, lower confidence
+
+Real Impact on Performance
+================================================================================
+
+First Reddit scrape (Tasks 1-5): 4 actions, 5 screenshots, 45 seconds, ~50 tokens
+Mid-phase (Tasks 30-50): 4 actions, 2 screenshots, 25 seconds, ~25 tokens
+Mature (Tasks 150+): 4 actions, 0-1 screenshots, 12 seconds, ~10 tokens
+Improvement: 75% faster, 80% fewer tokens, same accuracy
+
+STEP 26: Confidence Scoring & Learning Loop
+================================================================================
+
+• Confidence = (successful_predictions / total_predictions) for similar actions
+• Update in Pinecone: Store confidence_score in metadata for each action pattern
+• Decay over time: If page structure changes, older data weighted less
+• Feedback loop: Failed predictions trigger immediate screenshot verification
+• Silent adjustment: Confidence scores update without user notification
+
+STEP 27: Context Selection Strategy
+================================================================================
+
+• Web task (Selenium): Use DOM extraction (HTML), only screenshot if prediction fails
+• OS task (pyautogui): Always screenshot (visual context needed)
+• Mixed task: Use DOM for web part, screenshot for OS part
+• Rare action: Always screenshot first time, predict future
+• Safety: Always fallback to screenshot if anything uncertain
+
+
+================================================================================
+4. COMPLETE FEATURE SET
+================================================================================
+
+What Jarvis Can Do
+
+• Web scraping (extract posts, products, emails, data)
+• Form filling & data entry (single or bulk submissions)
+• Login & account setup automation
+• Content monitoring & change detection
+• File downloading & content archiving
+• Multi-site data aggregation
+• App launching (any installed application)
+• Voice queries & voice-controlled automation
+• Screen analysis & real-time screenshots
+• Silent vector-based learning & optimization
+
+
+================================================================================
+5. IMPLEMENTATION TIMELINE
+================================================================================
+
+Phase 1: MVP Core (Week 1-2)
+
+• Hotkey daemon + terminal launcher
+• Voice I/O (Google STT + pyttsx3)
+• Screenshot analysis
+• 4-key Gemini fallback
+• Simple logging
+
+Phase 2: Automation & Learning (Week 3-4)
+
+• Selenium + pyautogui
+• App launcher
+• Pinecone vector storage
+• Hybrid context (DOM + screenshots)
+• Data collection for ML
+
+Phase 3: Predictive Intelligence (Week 5+)
+
+• Prediction algorithm
+• Confidence scoring
+• Continuous learning loop
+• Safety harness + comprehensive logging
+• Camera integration + refinements
+
+
+================================================================================
+6. SUCCESS METRICS
+================================================================================
+
+• API uptime: 100% (4 keys = redundancy)
+• Task completion rate: >95%
+• Execution speed improvement: 3x faster by Phase 3
+• Token efficiency: 70-80% fewer API calls by task 150
+• Prediction accuracy: >90% by task 100+
+• Crash-free: Auto-recovery on failures
+• Cost: Zero (free Gemini tier + free Pinecone)
+
+
+================================================================================
+7. WHAT JARVIS BECOMES
+================================================================================
+
+Jarvis isn't just a wrapper. It's an evolving agent that starts simple (hotkey + 
+voice), learns automatically (Pinecone), and becomes increasingly sophisticated 
+(predictive state machine). After 100 tasks, it's faster than most commercial 
+automation tools. After 1000 tasks, it's optimized specifically for your workflow. 
+All free. All silent. All improving.
+
+
+================================================================================
+8. FINAL SUMMARY
+================================================================================
+
+Jarvis is the result of 27 engineering steps, 3 automation phases, and a learning 
+system that turns simple API calls into an intelligent agent. It combines free 
+Gemini API (4 keys for redundancy), hybrid context (DOM + screenshots), Pinecone 
+learning (silent optimization), and predictive intelligence (fewer screenshots 
+over time). The result: A personal AI that automates your web tasks, launches 
+your apps, answers your questions, and gets smarter with every use—forever free, 
+forever learning, forever improving.
+
+Ready to build.

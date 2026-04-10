@@ -1,5 +1,6 @@
 import logging
 import json
+import time
 from typing import Optional, List
 from dataclasses import dataclass, field
 from enum import Enum
@@ -43,10 +44,11 @@ class TaskResult:
 
 
 class TaskManager:
-    def __init__(self, api_manager, browser=None, automation=None):
+    def __init__(self, api_manager, browser=None, automation=None, pinecone_store=None):
         self.api_manager = api_manager
         self.browser = browser
         self.automation = automation
+        self.pinecone_store = pinecone_store
         self.task_history: List[dict] = []
         self.current_task: Optional[str] = None
         self.actions_completed = 0
@@ -102,47 +104,82 @@ Respond with ONLY valid JSON, no other text:
 
             if action.type == ActionType.NAVIGATE and "url" in action.params:
                 if self.browser:
+                    before_screenshot = self.browser.get_screenshot()
+                    before_hash = self._hash_screenshot(before_screenshot) if before_screenshot else ""
                     self.browser.navigate(action.params["url"])
                     self.actions_completed += 1
+                    after_screenshot = self.browser.get_screenshot()
+                    after_hash = self._hash_screenshot(after_screenshot) if after_screenshot else ""
+                    self._log_action(action, success=True, before_hash=before_hash, after_hash=after_hash)
+                else:
+                    self._log_action(action)
             elif action.type == ActionType.CLICK:
                 x = action.params.get("x", 0)
                 y = action.params.get("y", 0)
+                before_screenshot = self._capture_before_action()
+                before_hash = self._hash_screenshot(before_screenshot) if before_screenshot else ""
                 if self.automation:
                     self.automation.click(x, y)
                 self.actions_completed += 1
+                after_screenshot = self._capture_after_action()
+                after_hash = self._hash_screenshot(after_screenshot) if after_screenshot else ""
+                self._log_action(action, success=True, before_hash=before_hash, after_hash=after_hash)
             elif action.type == ActionType.TYPE:
                 text = action.params.get("text", "")
+                before_screenshot = self._capture_before_action()
+                before_hash = self._hash_screenshot(before_screenshot) if before_screenshot else ""
                 if self.automation:
                     self.automation.type_text(text)
                 self.actions_completed += 1
+                after_screenshot = self._capture_after_action()
+                after_hash = self._hash_screenshot(after_screenshot) if after_screenshot else ""
+                self._log_action(action, success=True, before_hash=before_hash, after_hash=after_hash)
             elif action.type == ActionType.PRESS:
                 key = action.params.get("key", "")
+                before_screenshot = self._capture_before_action()
+                before_hash = self._hash_screenshot(before_screenshot) if before_screenshot else ""
                 if self.automation:
                     self.automation.press(key)
                 self.actions_completed += 1
+                after_screenshot = self._capture_after_action()
+                after_hash = self._hash_screenshot(after_screenshot) if after_screenshot else ""
+                self._log_action(action, success=True, before_hash=before_hash, after_hash=after_hash)
             elif action.type == ActionType.SCROLL:
                 clicks = action.params.get("clicks", 0)
+                before_screenshot = self._capture_before_action()
+                before_hash = self._hash_screenshot(before_screenshot) if before_screenshot else ""
                 if self.automation:
                     self.automation.scroll(clicks)
                 self.actions_completed += 1
+                after_screenshot = self._capture_after_action()
+                after_hash = self._hash_screenshot(after_screenshot) if after_screenshot else ""
+                self._log_action(action, success=True, before_hash=before_hash, after_hash=after_hash)
             elif action.type == ActionType.DONE or (hasattr(action, 'type') and action.type.value == "done"):
                 logger.info("Task marked as done")
                 break
-
-            self._log_action(action)
+            else:
+                self._log_action(action)
 
         return self.actions_completed
 
     def _capture_context(self) -> Optional[str]:
-        if not self.browser:
-            return None
-        try:
-            screenshot_bytes = self.browser.get_screenshot()
-            if screenshot_bytes:
-                import base64
-                return base64.b64encode(screenshot_bytes).decode()
-        except Exception as e:
-            logger.error(f"Failed to capture screenshot: {e}")
+        screenshot_bytes = None
+        if self.browser and self.browser.is_running():
+            try:
+                screenshot_bytes = self.browser.get_screenshot()
+            except Exception as e:
+                logger.error(f"Failed to capture browser screenshot: {e}")
+        
+        # Fallback to desktop screen if browser screenshot failed or isn't running
+        if not screenshot_bytes and self.automation:
+            try:
+                screenshot_bytes = self.automation.get_screenshot()
+            except Exception as e:
+                logger.error(f"Failed to capture desktop screenshot: {e}")
+
+        if screenshot_bytes:
+            import base64
+            return base64.b64encode(screenshot_bytes).decode('utf-8')
         return None
 
     def _parse_action(self, response: str) -> Optional[Action]:
@@ -164,16 +201,60 @@ Respond with ONLY valid JSON, no other text:
             logger.warning(f"Could not parse action response: {response[:100]}...")
             return None
 
-    def _log_action(self, action: Action):
+    def _log_action(self, action: Action, success: bool = True, before_hash: str = "", after_hash: str = ""):
         self.task_history.append({
             "action": action.type.value,
             "params": action.params,
-            "confidence": action.confidence
+            "confidence": action.confidence,
+            "before_hash": before_hash,
+            "after_hash": after_hash
         })
         logger.info(f"Action logged: {action.type.value}")
+        
+        if self.pinecone_store:
+            from jarvis.memory.pinecone_store import ActionRecord
+            target = str(action.params.get("url") or action.params.get("text") or action.params.get("x", ""))
+            record = ActionRecord(
+                action_type=action.type.value,
+                action_target=target,
+                before_dom_hash=before_hash,
+                after_dom_hash=after_hash,
+                success=success,
+                task_type="browser" if action.type == ActionType.NAVIGATE else "os",
+                timestamp=time.time(),
+            )
+            self.pinecone_store.store_action(record)
 
     def get_history(self) -> List[dict]:
         return self.task_history
 
     def clear_history(self):
         self.task_history = []
+
+    def _capture_before_action(self) -> Optional[bytes]:
+        try:
+            if self.browser and self.browser.is_running():
+                return self.browser.get_screenshot()
+            if self.automation:
+                return self.automation.get_screenshot()
+        except Exception as e:
+            logger.warning(f"Failed to capture before screenshot: {e}")
+        return None
+
+    def _capture_after_action(self) -> Optional[bytes]:
+        import time
+        time.sleep(0.5)
+        try:
+            if self.browser and self.browser.is_running():
+                return self.browser.get_screenshot()
+            if self.automation:
+                return self.automation.get_screenshot()
+        except Exception as e:
+            logger.warning(f"Failed to capture after screenshot: {e}")
+        return None
+
+    def _hash_screenshot(self, screenshot_bytes: Optional[bytes]) -> str:
+        if not screenshot_bytes:
+            return ""
+        import hashlib
+        return hashlib.md5(screenshot_bytes).hexdigest()

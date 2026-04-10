@@ -15,6 +15,7 @@ class APIManager:
         self.keys = self._load_keys()
         self.current_key_index = 0
         self.request_counts = {k: 0 for k in API_KEYS}
+        self.failed_keys = set()
         self.last_reset = datetime.now()
 
     def _load_keys(self) -> dict:
@@ -28,10 +29,19 @@ class APIManager:
         return keys
 
     def get_current_key(self) -> Optional[str]:
-        if self.current_key_index < len(API_KEYS):
+        while self.current_key_index < len(API_KEYS):
             key_name = API_KEYS[self.current_key_index]
+            if key_name in self.failed_keys:
+                logger.warning(f"Skipping failed key: {key_name}")
+                self.current_key_index += 1
+                continue
             return self.keys.get(key_name)
         return None
+    
+    def mark_key_failed(self, key_name: str):
+        if key_name in API_KEYS:
+            self.failed_keys.add(key_name)
+            logger.warning(f"Key marked as failed: {key_name}")
 
     def call_api(self, prompt: str, image_base64: str = None) -> str:
         self._check_daily_reset()
@@ -58,7 +68,7 @@ class APIManager:
                     content.append(img)
 
                 response = client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-2.5-flash",
                     contents=content
                 )
                 self.request_counts[API_KEYS[self.current_key_index]] += 1
@@ -66,7 +76,18 @@ class APIManager:
                 return response.text
 
             except Exception as e:
-                logger.warning(f"API call failed with {API_KEYS[self.current_key_index]}: {e}")
+                error_str = str(e).lower()
+                key_name = API_KEYS[self.current_key_index]
+                
+                if any(x in error_str for x in ["429", "rate limit", "quota", "exhausted", "resource exhausted"]):
+                    logger.warning(f"Rate limit on {key_name}, marking as failed")
+                    self.mark_key_failed(key_name)
+                elif any(x in error_str for x in ["403", "forbidden", "invalid", "permission"]):
+                    logger.warning(f"Invalid credentials on {key_name}, marking as failed")
+                    self.mark_key_failed(key_name)
+                else:
+                    logger.warning(f"API call failed with {key_name}: {e}")
+                
                 self.current_key_index += 1
                 continue
 
@@ -88,9 +109,11 @@ class APIManager:
             status[display_name] = {
                 "used": count,
                 "remaining": remaining,
-                "total": DAILY_REQUEST_LIMIT
+                "total": DAILY_REQUEST_LIMIT,
+                "failed": key_name in self.failed_keys
             }
         return {
             "current_key": API_KEYS[self.current_key_index] if self.current_key_index < len(API_KEYS) else "none",
             "status": status,
+            "failed_keys": list(self.failed_keys)
         }

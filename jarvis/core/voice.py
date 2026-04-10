@@ -22,7 +22,15 @@ class VoiceIO:
             return False
 
         self.recognizer = sr.Recognizer()
-        self.microphone = sr.Microphone()
+        
+        try:
+            self.microphone = sr.Microphone()
+        except AttributeError as e:
+            logger.warning(f"Microphone init failed (likely missing pyaudio): {e}")
+            return False
+        except Exception as e:
+            logger.warning(f"Microphone not available: {e}")
+            return False
 
         try:
             self.tts_engine = pyttsx3.init()

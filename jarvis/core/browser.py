@@ -6,8 +6,9 @@ logger = logging.getLogger(__name__)
 
 
 class BrowserController:
-    def __init__(self, headless: bool = False):
+    def __init__(self, headless: bool = False, home_url: str = "https://www.google.com"):
         self.headless = headless
+        self.home_url = home_url
         self.driver = None
         self.wait = None
 
@@ -38,7 +39,8 @@ class BrowserController:
         try:
             self.driver = webdriver.Chrome(options=options)
             self.wait = WebDriverWait(self.driver, 10)
-            logger.info("Browser started successfully")
+            self.driver.get(self.home_url)
+            logger.info(f"Browser started with home: {self.home_url}")
             return True
         except Exception as e:
             logger.error(f"Failed to start browser: {e}")

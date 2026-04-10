@@ -1,0 +1,97 @@
+<svg viewBox="0 0 600 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #2d3748; stroke: #4299e1; stroke-width: 2; }
+      .start { fill: #48bb78; stroke: #38a169; stroke-width: 2; }
+      .end { fill: #f56565; stroke: #c53030; stroke-width: 2; }
+      .decision { fill: #ed8936; stroke: #dd6b20; stroke-width: 2; }
+      .text { fill: #ffffff; font-family: Arial; font-size: 13px; text-anchor: middle; }
+      .title { fill: #ffffff; font-family: Arial; font-size: 18px; font-weight: bold; text-anchor: middle; }
+      .arrow { stroke: #cbd5e0; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#cbd5e0" />
+    </marker>
+  </defs>
+
+  <text x="300" y="30" class="title">FLOW 4: RETRY LOGIC</text>
+
+  <!-- Action executed -->
+  <rect x="100" y="60" width="400" height="60" class="start" rx="10"/>
+  <text x="300" y="95" class="text">Action executed</text>
+
+  <path d="M 300 120 L 300 150" class="arrow"/>
+
+  <!-- Take screenshot -->
+  <rect x="100" y="150" width="400" height="60" class="box" rx="5"/>
+  <text x="300" y="185" class="text">Take screenshot (check for change)</text>
+
+  <path d="M 300 210 L 300 240" class="arrow"/>
+
+  <!-- Did action work? -->
+  <polygon points="300,240 400,290 300,340 200,290" class="decision"/>
+  <text x="300" y="295" class="text">Action</text>
+  <text x="300" y="310" class="text">worked?</text>
+
+  <!-- Success -->
+  <path d="M 400 290 L 500 290 L 500 60 L 500 60" class="arrow"/>
+  <text x="450" y="280" class="text">Yes</text>
+  <rect x="450" y="30" width="100" height="60" class="box" rx="5"/>
+  <text x="500" y="65" class="text">✓ Success</text>
+
+  <!-- Failed -->
+  <path d="M 300 340 L 300 370" class="arrow"/>
+  <text x="330" y="355" class="text">No</text>
+
+  <!-- Display error -->
+  <rect x="100" y="370" width="400" height="60" class="box" rx="5"/>
+  <text x="300" y="395" class="text">Display: "⚠ [Action] failed"</text>
+  <text x="300" y="415" class="text">"Retrying (attempt X/5)..."</text>
+
+  <path d="M 300 430 L 300 460" class="arrow"/>
+
+  <!-- Exponential backoff -->
+  <rect x="100" y="460" width="400" height="60" class="box" rx="5"/>
+  <text x="300" y="485" class="text">Wait: 2^attempt seconds</text>
+  <text x="300" y="505" class="text">(attempt 1: 2s, 2: 4s, 3: 8s...)</text>
+
+  <path d="M 300 520 L 300 550" class="arrow"/>
+
+  <!-- Retry count check -->
+  <polygon points="300,550 400,600 300,650 200,600" class="decision"/>
+  <text x="300" y="595" class="text">Retries</text>
+  <text x="300" y="610" class="text">< 5?</text>
+
+  <!-- Retry again -->
+  <path d="M 200 600 L 50 600 L 50 190 L 100 190" class="arrow"/>
+  <text x="120" y="595" class="text">Yes</text>
+
+  <!-- Max retries reached -->
+  <path d="M 300 650 L 300 680" class="arrow"/>
+  <text x="330" y="670" class="text">No</text>
+
+  <!-- All retries failed -->
+  <rect x="100" y="680" width="400" height="80" class="box" rx="5"/>
+  <text x="300" y="705" class="text">Display: "⚠ Action failed 5 times"</text>
+  <text x="300" y="725" class="text">"Fallback to Gemini/Grok API?"</text>
+  <text x="300" y="745" class="text">"Manual input needed? (y/n)"</text>
+
+  <path d="M 300 760 L 300 790" class="arrow"/>
+
+  <!-- Ask user -->
+  <polygon points="300,790 400,840 300,890 200,840" class="decision"/>
+  <text x="300" y="845" class="text">User input</text>
+
+  <!-- User confirms -->
+  <path d="M 400 840 L 500 840 L 500 30 L 550 30" class="arrow"/>
+  <text x="450" y="835" class="text">Yes</text>
+
+  <!-- User skips -->
+  <path d="M 300 890 L 300 920" class="arrow"/>
+  <text x="330" y="910" class="text">No</text>
+
+  <!-- Skip action, continue -->
+  <rect x="100" y="920" width="400" height="60" class="end" rx="10"/>
+  <text x="300" y="945" class="text">Skip action, continue task</text>
+  <text x="300" y="965" class="text">OR abort task</text>
+</svg>

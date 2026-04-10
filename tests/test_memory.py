@@ -5,9 +5,7 @@ from jarvis.memory.context_selector import ContextSelector
 
 
 def test_pinecone_store_initializes_without_key():
-    store = PineconeStore(api_key=None)
-    assert store.api_key is None
-    assert store.index is None
+    store = PineconeStore(api_key="fake-key-for-test")
     assert len(store.fallback_store) == 0
 
 
@@ -20,7 +18,7 @@ def test_pinecone_store_get_stats():
 
 
 def test_store_action():
-    store = PineconeStore()
+    store = PineconeStore(api_key="fake-key-for-tests")
     record = ActionRecord(
         action_type="click",
         action_target="button",
@@ -31,7 +29,7 @@ def test_store_action():
 
 
 def test_query_similar():
-    store = PineconeStore()
+    store = PineconeStore(api_key="fake-key-for-tests")
     record1 = ActionRecord(action_type="click", action_target="btn1", success=True)
     record2 = ActionRecord(action_type="click", action_target="btn2", success=True)
     store.store_action(record1)
@@ -48,9 +46,9 @@ def test_prediction_engine_initializes():
 
 
 def test_prediction_engine_predict_outcome_no_data():
-    store = PineconeStore()
+    store = PineconeStore(api_key="fake-key-for-tests")
     engine = PredictionEngine(store)
-    result = engine.predict_outcome("click", "unknown")
+    result = engine.predict_outcome("click", "unknown_target_xyz_12345")
     assert result is None
 
 

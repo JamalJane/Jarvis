@@ -40,3 +40,10 @@ class AutomationController:
     def right_click(self, x: int = None, y: int = None):
         pyautogui.rightClick(x, y)
         logger.info(f"Right clicked at ({x}, {y})")
+
+    def get_screenshot(self) -> bytes:
+        import io
+        img = pyautogui.screenshot()
+        img_byte_arr = io.BytesIO()
+        img.save(img_byte_arr, format='PNG')
+        return img_byte_arr.getvalue()
