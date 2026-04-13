@@ -28,6 +28,13 @@ An intelligent desktop automation agent with voice I/O, screen automation, and p
    PINECONE_API_KEY=your_key_here
    ```
 
+3. **Configure Google Cloud credentials** (for Gmail, Calendar, Drive access):
+   - Go to [Google Cloud Console](https://console.cloud.google.com)
+   - Create a project and enable APIs: Gmail API, Google Calendar API, Google Drive API, Google Docs API
+   - Create OAuth 2.0 credentials (Desktop application)
+   - Download the credentials file as `credentials.json`
+   - On first run, the app will prompt you to authorize via browser login
+
 3. **Run tests**:
    ```bash
    python -c "import pytest; pytest.main()"
