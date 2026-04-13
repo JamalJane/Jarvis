@@ -22,3 +22,14 @@ pygetwindow>=0.0.9
 pyperclip>=1.8.2
 numpy>=1.24.0
 pywin32>=306
+
+# ── Browser control module dependencies ───────────────────────────────────────
+# After pip install -r requirements.txt, also run:
+#   playwright install chromium
+playwright>=1.44.0
+
+# ── Google API integrations (Gmail, Calendar, Docs) ───────────────────────────
+google-api-python-client>=2.0.0
+google-auth-httplib2>=0.1.0
+google-auth-oauthlib>=1.0.0
+google-auth>=2.0.0

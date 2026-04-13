@@ -45,3 +45,6 @@ htmlcov/
 # Virtual
 venv/
 env/
+
+
+examples/

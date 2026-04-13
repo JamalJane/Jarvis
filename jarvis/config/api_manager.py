@@ -43,6 +43,34 @@ class APIManager:
             self.failed_keys.add(key_name)
             logger.warning(f"Key marked as failed: {key_name}")
 
+    def validate_keys(self):
+        import concurrent.futures
+        from google import genai
+
+        def test_key(key_name):
+            key = self.keys.get(key_name)
+            if not key:
+                self.failed_keys.add(key_name)
+                return False
+            try:
+                client = genai.Client(api_key=key)
+                client.models.generate_content(model="gemini-2.5-flash", contents=["hi"])
+                return True
+            except Exception as e:
+                logger.warning(f"Key {key_name} failed validation: {e}")
+                self.failed_keys.add(key_name)
+                return False
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(API_KEYS)) as executor:
+            futures = [executor.submit(test_key, k) for k in API_KEYS]
+            concurrent.futures.wait(futures)
+
+        # Ensure current_key_index skips failed keys
+        while self.current_key_index < len(API_KEYS):
+            if API_KEYS[self.current_key_index] not in self.failed_keys:
+                break
+            self.current_key_index += 1
+
     def call_api(self, prompt: str, image_base64: str = None) -> str:
         self._check_daily_reset()
 

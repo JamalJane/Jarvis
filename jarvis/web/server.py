@@ -384,6 +384,26 @@ async def websocket_endpoint(websocket: WebSocket, token: str = Query(...)):
         connected_clients.discard(websocket)
 
 
+def _handle_simple_command(command: str) -> str | None:
+    """Handle simple conversational commands directly without browser/API. Returns response or None."""
+    lower = command.lower().strip()
+    
+    greetings = ["how are we", "how are you", "how r we", "how r you", "hows it going", "wassup", "what's up"]
+    if lower in greetings:
+        return "All good! Ready when you are."
+    
+    if lower in ["status", "ping", "are you there"]:
+        return "Online and ready."
+    
+    if lower in ["thanks", "thank you", "thx", "ty"]:
+        return "You're welcome!"
+    
+    if lower in ["ok", "okay", "k", "kk", "roger"]:
+        return "OK"
+    
+    return None
+
+
 async def handle_command(command: str) -> str:
     """Process a natural language command."""
     core = get_jarvis_core()
@@ -392,6 +412,9 @@ async def handle_command(command: str) -> str:
     api_manager = core.get("api_manager")
     
     command = command.lower().strip()
+    
+    if simple := _handle_simple_command(command):
+        return simple
     
     try:
         if command.startswith("go to ") or command.startswith("navigate "):

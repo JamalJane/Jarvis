@@ -24,6 +24,12 @@ def load_startup_summary() -> str:
 
 
 def display_api_status(api_manager: APIManager):
+    print("  Validating API keys...", end="\r")
+    api_manager.validate_keys()
+    
     status = api_manager.get_status()
     for display_name, counts in status["status"].items():
-        print(f"  {display_name}: {counts['remaining']}/{counts['total']} requests remaining")
+        if counts["failed"]:
+            print(f"  {display_name}: \033[31mFAILED\033[0m (Invalid or Exhausted)")
+        else:
+            print(f"  {display_name}: \033[32mOK\033[0m ({counts['remaining']}/{counts['total']} remaining)")
