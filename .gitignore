@@ -2,6 +2,10 @@
 .env
 .env.local
 
+# Google OAuth tokens and credentials - never commit
+token.json
+credentials.json
+
 # Python
 __pycache__/
 *.py[cod]
