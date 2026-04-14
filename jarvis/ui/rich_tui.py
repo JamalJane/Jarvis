@@ -34,7 +34,6 @@ RED = Color.from_rgb(255, 68, 68)
 BLUE = Color.from_rgb(68, 153, 255)
 
 
-@dataclass
 class RichTUI:
     def __init__(self):
         self.console = Console()
@@ -73,7 +72,7 @@ class RichTUI:
         try:
             status = self.agent.get_api_status() if self.agent else {}
             return status.get("current", 1)
-        except:
+        except (AttributeError, KeyError, Exception):
             return 1
     
     def render(self):

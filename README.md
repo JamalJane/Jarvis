@@ -35,17 +35,17 @@ An intelligent desktop automation agent with voice I/O, screen automation, and p
    - Download the credentials file as `credentials.json`
    - On first run, the app will prompt you to authorize via browser login
 
-3. **Run tests**:
+4. **Run tests**:
    ```bash
    python -c "import pytest; pytest.main()"
    ```
 
-4. **Start JARVIS**:
+5. **Start JARVIS**:
    ```bash
    python jarvis.py
    ```
 
-5. **Start hotkey daemon** (optional - enables global hotkey):
+6. **Start hotkey daemon** (optional - enables global hotkey):
    ```bash
    python -m jarvis.daemon
    ```
@@ -65,7 +65,7 @@ An intelligent desktop automation agent with voice I/O, screen automation, and p
 
 ## Architecture
 
-```
+```text
 jarvis/
 ├── jarvis.py              # Main entry point
 ├── daemon.py              # Hotkey daemon

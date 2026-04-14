@@ -129,8 +129,9 @@ class BasicTUI:
             try:
                 import pyautogui
                 pyautogui.moveTo(0, 0)
-            except:
-                pass
+            except Exception as e:
+                import logging
+                logging.debug("Failed to move mouse during abort", exc_info=True)
             print("Aborted!")
             raise KeyboardInterrupt()
         

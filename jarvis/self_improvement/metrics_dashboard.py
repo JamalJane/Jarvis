@@ -31,7 +31,7 @@ class MetricsDashboard:
         header = f"{'Date':<22} {'Imps':>5} {'App':>5} {'Speed Δ':>9} {'Token Δ':>9} {'Commit':<12}"
         sep    = "─" * len(header)
 
-        print(f"\n  Self-Improvement History")
+        print("\n  Self-Improvement History")
         print(f"  {sep}")
         print(f"  {header}")
         print(f"  {sep}")
@@ -45,10 +45,16 @@ class MetricsDashboard:
             app   = s.get("improvements_applied", "?")
             commit = s.get("commit_hash", "")[:10] or "—"
 
-            speed_str = (f"{_G}{speed:+.1f}%{_RST}" if speed and speed > 0
-                         else f"{_R}{speed:+.1f}%{_RST}" if speed else f"{_DIM}—{_RST}")
-            token_str = (f"{_G}{token:+.1f}%{_RST}" if token and token < 0
-                         else f"{_R}{token:+.1f}%{_RST}" if token else f"{_DIM}—{_RST}")
+            speed_val = f"{speed:+.1f}%" if speed else "—"
+            token_val = f"{token:+.1f}%" if token else "—"
+
+            speed_aligned = f"{speed_val:>9}"
+            token_aligned = f"{token_val:>9}"
+
+            speed_str = (f"{_G}{speed_aligned}{_RST}" if speed and speed > 0
+                         else f"{_R}{speed_aligned}{_RST}" if speed else f"{_DIM}{speed_aligned}{_RST}")
+            token_str = (f"{_G}{token_aligned}{_RST}" if token and token < 0
+                         else f"{_R}{token_aligned}{_RST}" if token else f"{_DIM}{token_aligned}{_RST}")
 
             print(f"  {date:<22} {str(imp):>5} {str(app):>5} {speed_str:>9} {token_str:>9} {commit:<12}")
 

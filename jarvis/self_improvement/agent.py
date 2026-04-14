@@ -223,10 +223,10 @@ class SelfImprovementAgent:
                     rejected.append(imp)
                     print(f"  {_DIM}  ✗ Skipped (user declined){_RST}")
                     continue
-                # User approved — override sandbox gate by temporarily lowering risk
-                imp.risk_level = "Medium"
-
-            result = self.tester.test_improvement(imp)
+                # User approved high-risk — pass flag to bypass sandbox check (don't mutate imp)
+                result = self.tester.test_improvement(imp, user_approved=True)
+            else:
+                result = self.tester.test_improvement(imp)
 
             if result.approved:
                 self.applicator.apply(imp, result)

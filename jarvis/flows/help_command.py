@@ -58,4 +58,4 @@ def handle_help_command(command: str) -> bool:
 
 
 def is_help_command(command: str) -> bool:
-    return command.strip().lower() in ["/help", "help", "?", "help me"]
+    return command.strip().lower() in ["/help", "help", "?"]

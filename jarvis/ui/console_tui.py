@@ -29,7 +29,7 @@ console = Console(force_terminal=True)
 
 
 def main():
-    print("\033[?1049l\033[?1000l\033[?25l", end="")  # Enter alternate screen, enable mouse, hide cursor
+    print("\033[?1049h\033[?1000h\033[?25l", end="")  # Enter alternate screen, enable mouse, hide cursor
     
     state = {"running": False, "paused": False, "task": "", "steps": [], "key_idx": 1}
     
@@ -40,15 +40,15 @@ def main():
     
     try:
         while True:
-            _render(state)
-            _handle_input(state)
+            _render(state, agent)
+            _handle_input(state, agent)
     except (KeyboardInterrupt, EOFError):
         pass
     finally:
-        print("\033[?1049h\033[?1000h\033[?25h", end="")  # Exit alternate screen
+        print("\033[?1049l\033[?1000l\033[?25h", end="")  # Exit alternate screen, disable mouse, show cursor
 
 
-def _render(state):
+def _render(state, agent):
     console.clear()
     
     width = 60
@@ -105,27 +105,18 @@ def _render(state):
     console.print(Panel("> SEND  ABORT  PAUSE", style="on rgb(22,27,34)", width=width))
 
 
-def _handle_input(state):
+def _handle_input(state, agent):
     print("\n> ", end="", flush=True)
+    
     try:
         line = input().strip()
-    except:
+    except (KeyboardInterrupt, EOFError):
+        print("Exiting...")
+        state["running"] = False
         return
     
     if not line:
         return
-    
-    if line.lower() in ["exit", "quit", "q"]:
-        raise KeyboardInterrupt()
-    
-    if line.lower() == "abort":
-        try:
-            import pyautogui
-            pyautogui.moveTo(0, 0)
-        except:
-            pass
-        print("Aborted!")
-        raise KeyboardInterrupt()
     
     if line.lower() == "pause":
         state["paused"] = not state["paused"]
@@ -135,14 +126,14 @@ def _handle_input(state):
     state["running"] = True
     state["steps"] = []
     
-    def run_it():
+    def run_it(agent):
         try:
             result = agent.run_task(line)
         except Exception as e:
             state["steps"].append(StepLog(0, "error", {}, "failed", str(e)))
         state["running"] = False
     
-    threading.Thread(target=run_it, daemon=True).start()
+    threading.Thread(target=lambda: run_it(agent), daemon=True).start()
     time.sleep(0.5)
 
 

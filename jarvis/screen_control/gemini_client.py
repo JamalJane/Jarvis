@@ -28,14 +28,14 @@ if not _failure_logger.handlers:
 
 
 class AllKeysExhaustedError(Exception):
-    """Raised when all 4 Gemini API keys have failed on the same call."""
+    """Raised when all Gemini API keys have failed on the same call."""
     pass
 
 
 class GeminiClient:
     """
-    Manages 4 Gemini API keys with transparent rotation on failure.
-    Model: gemini-2.0-flash (vision-capable, fastest free tier).
+    Manages up to 5 Gemini API keys with transparent rotation on failure.
+    Model: gemini-2.5-flash (vision-capable, fastest free tier).
     """
 
     MODEL = "gemini-2.5-flash"
@@ -52,7 +52,7 @@ class GeminiClient:
         # Remove empty keys
         self.keys = [k for k in self.keys if k]
         if not self.keys:
-            raise ValueError("No Gemini API keys found in .env (GEMINI_KEY_1 … GEMINI_KEY_4)")
+            raise ValueError("No Gemini API keys found in .env (GEMINI_KEY_1 … GEMINI_KEY_5)")
 
         self.current_key_index = 0
         self.first_used_time: dict[int, float] = {}  # key_index -> first use timestamp

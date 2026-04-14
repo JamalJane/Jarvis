@@ -35,14 +35,14 @@ class TestResult:
 class SandboxTester:
     """Sandbox-test one improvement at a time with full backup/restore safety."""
 
-    def test_improvement(self, imp: Improvement) -> TestResult:
+    def test_improvement(self, imp: Improvement, user_approved: bool = False) -> TestResult:
         # Safety gate 1: whitelist check
         if not CodeAnalyzer().is_modifiable(imp.file_path):
             logger.warning("Improvement #%d targets blacklisted file: %s", imp.number, imp.file_path)
             return TestResult(approved=False, reason=f"File '{imp.file_path}' is not in the whitelist")
 
         # Safety gate 2: High-risk items must have been explicitly approved by the caller
-        if imp.risk_level == "High":
+        if imp.risk_level == "High" and not user_approved:
             return TestResult(
                 approved=False,
                 reason="High-risk — requires explicit user approval via HighRiskApprovalUI",

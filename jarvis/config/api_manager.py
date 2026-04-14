@@ -126,6 +126,7 @@ class APIManager:
         if now - self.last_reset > timedelta(days=1):
             self.request_counts = {k: 0 for k in API_KEYS}
             self.current_key_index = 0
+            self.failed_keys.clear()
             self.last_reset = now
             logger.info("API request counts reset")
 

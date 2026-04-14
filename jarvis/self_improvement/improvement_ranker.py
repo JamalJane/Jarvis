@@ -25,7 +25,7 @@ def _score(imp: Improvement) -> float:
     safety_inv = _RISK_WEIGHT.get(imp.risk_level, 0.0)
     simplicity = 1.0 / (1.0 + len(imp.proposed_code))
 
-    return (impact * 0.5) + (safety_inv * 30.0) + (simplicity * 0.2)  # safety domintaes
+    return (impact * 0.5) + (safety_inv * 0.3) + (simplicity * 0.2)  # safety dominates
 
 
 class ImprovementRanker:

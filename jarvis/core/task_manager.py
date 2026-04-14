@@ -310,8 +310,8 @@ Otherwise respond with only one of these actions:
                 if start != -1 and end > start:
                     data = json.loads(response[start:end])
                     return Action.from_dict(data)
-            except:
-                pass
+            except (json.JSONDecodeError, ValueError, KeyError):
+                pass  # Fall through to warning below
             logger.warning(f"Could not parse action response: {response[:100]}...")
             return None
 
