@@ -3,6 +3,7 @@ JARVIS Textual TUI Application
 A 3-panel terminal UI using Textual framework
 """
 
+import logging
 import threading
 from dataclasses import dataclass
 from typing import Optional
@@ -87,7 +88,9 @@ class JarvisApp(App):
         self._running = False
         self._current_task = ""
         self._log_entries: list[LogEntry] = []
+        self._log_lock = threading.Lock()
         self._step_count = 0
+        self.log = logging.getLogger("jarvis.textual")
 
     def compose(self) -> ComposeResult:
         yield Static("JARVIS v1.0  [● ONLINE]  Gemini Key: 2/4", id="header_bar")
@@ -148,7 +151,7 @@ class JarvisApp(App):
             try:
                 status = self.agent_lib.get_key_status_full()
                 lines = []
-                for i, (name, info) in enumerate(status.get("status", {}).items(), 1):
+                for i, (_, info) in enumerate(status.get("status", {}).items(), 1):
                     if info.get("failed"):
                         status_text = "FAIL"
                     else:
@@ -157,14 +160,14 @@ class JarvisApp(App):
                     lines.append(f"Key {i}: {status_text}")
                 
                 self.query_one("#status_container > Static:nth-child(4)").update("  ".join(lines))
-            except Exception:
-                pass
+            except Exception as e:
+                self.log.debug(f"Key status update failed: {e}")
 
     def _update_progress(self, step: int):
         try:
             self.query_one("#status_container > Static:nth-child(3)").update(f"Progress: Step {step}")
-        except Exception:
-            pass
+        except Exception as e:
+            self.log.debug(f"Progress update failed: {e}")
 
     def log_error(self, msg: str):
         self.add_log(f"[rgb(255,68,68)]✗[/] {msg}")
@@ -244,22 +247,26 @@ class JarvisApp(App):
             self.log_success(f"Task complete ({self._step_count} steps)")
         else:
             header.update("JARVIS v1.0  [● ONLINE]  ✗ Failed")
-            self.log_error(f"Task failed")
+            self.log_error("Task failed")
         
         self._update_key_status()
 
     def add_log(self, message: str) -> None:
-        self._log_entries.append(LogEntry(message=message, status=""))
+        with self._log_lock:
+            self._log_entries.append(LogEntry(message=message, status=""))
         self.call_from_thread(self._update_log_display)
 
     def add_log_raw(self, message: str) -> None:
-        self._log_entries.append(LogEntry(message=message, status=""))
+        with self._log_lock:
+            self._log_entries.append(LogEntry(message=message, status=""))
         self.call_from_thread(self._update_log_display)
 
     def _update_log_display(self) -> None:
         log_widget = self.query_one("#log_widget", Log)
+        with self._log_lock:
+            if self._log_entries:
+                entry = self._log_entries[-1]
         if self._log_entries:
-            entry = self._log_entries[-1]
             log_widget.write(entry.message, shrink=False)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

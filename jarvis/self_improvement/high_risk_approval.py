@@ -58,4 +58,4 @@ class HighRiskApprovalUI:
             if answer in ("no", "n", "skip", "s"):
                 print(f"  {_DIM}Skipped by user.{_RST}")
                 return False
-            print(f"  Please type 'yes' or 'no'.")
+            print("  Please type 'yes' or 'no'.")

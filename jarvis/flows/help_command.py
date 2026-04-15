@@ -1,6 +1,3 @@
-from jarvis.ui.display import Display
-
-
 HELP_PANEL = """
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║                        JARVIS COMMAND PANEL                               ║

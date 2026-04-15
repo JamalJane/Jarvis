@@ -1,0 +1,142 @@
+2026-04-14 20:11:46,793 [WARNING] jarvis.training: PINECONE_API_KEY not set. Training memory disabled.
+2026-04-14 20:11:46,794 [WARNING] jarvis.training: TrainingLogger running in fallback mode (no Pinecone).
+2026-04-14 20:11:47,441 [INFO] jarvis.config.api_manager: Loaded GEMINI_KEY_1
+2026-04-14 20:11:47,442 [INFO] jarvis.config.api_manager: Loaded GEMINI_KEY_2
+2026-04-14 20:11:47,442 [INFO] jarvis.config.api_manager: Loaded GEMINI_KEY_3
+2026-04-14 20:11:47,443 [INFO] jarvis.config.api_manager: Loaded GEMINI_KEY_4
+2026-04-14 20:11:47,443 [INFO] jarvis.config.api_manager: Total keys loaded: 4
+2026-04-14 20:11:47,444 [INFO] jarvis.auto_trainer: JarvisExecutor initialized
+2026-04-14 20:11:47,445 [INFO] jarvis.auto_trainer: ============================================================
+2026-04-14 20:11:47,445 [INFO] jarvis.auto_trainer:   JARVIS AUTO-TRAINER STARTED
+2026-04-14 20:11:47,445 [INFO] jarvis.auto_trainer:   Confidence target: 95%
+2026-04-14 20:11:47,446 [INFO] jarvis.auto_trainer:   Sources: tasks.txt + past tasks + variations
+2026-04-14 20:11:47,446 [INFO] jarvis.auto_trainer: ============================================================
+2026-04-14 20:11:47,447 [INFO] jarvis.auto_trainer: Building training queue...
+2026-04-14 20:11:47,449 [WARNING] jarvis.training: Embed failed on key 0: GEMINI_KEY_1 not set in .env
+2026-04-14 20:11:47,449 [WARNING] jarvis.training: Embed failed on key 1: GEMINI_KEY_2 not set in .env
+2026-04-14 20:11:47,450 [WARNING] jarvis.training: Embed failed on key 2: GEMINI_KEY_3 not set in .env
+2026-04-14 20:11:47,450 [WARNING] jarvis.training: Embed failed on key 3: GEMINI_KEY_4 not set in .env
+2026-04-14 20:11:47,450 [ERROR] jarvis.auto_trainer: Failed to fetch past tasks: All Gemini keys failed during embedding.
+2026-04-14 20:11:47,451 [INFO] jarvis.auto_trainer: Loaded 22 tasks from tasks.txt
+2026-04-14 20:11:47,451 [WARNING] jarvis.training: Embed failed on key 0: GEMINI_KEY_1 not set in .env
+2026-04-14 20:11:47,451 [WARNING] jarvis.training: Embed failed on key 1: GEMINI_KEY_2 not set in .env
+2026-04-14 20:11:47,452 [WARNING] jarvis.training: Embed failed on key 2: GEMINI_KEY_3 not set in .env
+2026-04-14 20:11:47,452 [WARNING] jarvis.training: Embed failed on key 3: GEMINI_KEY_4 not set in .env
+2026-04-14 20:11:47,452 [ERROR] jarvis.auto_trainer: Failed to fetch past tasks: All Gemini keys failed during embedding.
+2026-04-14 20:11:47,452 [INFO] jarvis.auto_trainer: Loaded 0 past tasks from Pinecone
+2026-04-14 20:11:52,460 [INFO] jarvis.auto_trainer: Generated 0 variations
+2026-04-14 20:11:52,461 [INFO] jarvis.auto_trainer: Total queue: 22 tasks
+2026-04-14 20:11:52,461 [INFO] jarvis.auto_trainer: Training task: open wikipedia and search for artificial intelligence
+2026-04-14 20:11:52,461 [WARNING] jarvis.training: Embed failed on key 0: GEMINI_KEY_1 not set in .env
+2026-04-14 20:11:52,462 [WARNING] jarvis.training: Embed failed on key 1: GEMINI_KEY_2 not set in .env
+2026-04-14 20:11:52,462 [WARNING] jarvis.training: Embed failed on key 2: GEMINI_KEY_3 not set in .env
+2026-04-14 20:11:52,462 [WARNING] jarvis.training: Embed failed on key 3: GEMINI_KEY_4 not set in .env
+2026-04-14 20:11:52,462 [ERROR] jarvis.training: pre_task query failed: All Gemini keys failed during embedding.
+2026-04-14 20:11:52,463 [INFO] jarvis.auto_trainer:   Confidence: 0.00 | Skip: False
+2026-04-14 20:11:52,466 [WARNING] jarvis.training: PINECONE_API_KEY not set. Training memory disabled.
+2026-04-14 20:11:52,466 [WARNING] jarvis.training: TrainingLogger running in fallback mode (no Pinecone).
+2026-04-14 20:11:52,467 [INFO] jarvis.core.task_manager: Starting task: open wikipedia and search for artificial intelligence
+2026-04-14 20:11:52,467 [WARNING] jarvis.training: Embed failed on key 0: GEMINI_KEY_1 not set in .env
+2026-04-14 20:11:52,467 [WARNING] jarvis.training: Embed failed on key 1: GEMINI_KEY_2 not set in .env
+2026-04-14 20:11:52,468 [WARNING] jarvis.training: Embed failed on key 2: GEMINI_KEY_3 not set in .env
+2026-04-14 20:11:52,468 [WARNING] jarvis.training: Embed failed on key 3: GEMINI_KEY_4 not set in .env
+2026-04-14 20:11:52,468 [ERROR] jarvis.training: pre_task query failed: All Gemini keys failed during embedding.
+2026-04-14 20:11:52,468 [INFO] jarvis.core.task_manager: Training pre-task: confidence=0.00 skip_screenshot=False
+2026-04-14 20:11:56,164 [INFO] jarvis.auto_trainer: Shutdown signal received — saving state and stopping...
+2026-04-14 20:11:56,992 [INFO] google_genai.models: AFC is enabled with max remote calls: 10.
+2026-04-14 20:11:58,675 [INFO] jarvis.auto_trainer: Shutdown signal received — saving state and stopping...
+2026-04-14 20:11:58,676 [INFO] httpx: HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-14 20:11:58,683 [INFO] jarvis.config.api_manager: API call succeeded with GEMINI_KEY_1
+2026-04-14 20:11:59,285 [INFO] jarvis.core.automation: Clicked at (643, 969)
+2026-04-14 20:11:59,993 [INFO] jarvis.core.task_manager: Action logged: click
+2026-04-14 20:12:02,868 [INFO] google_genai.models: AFC is enabled with max remote calls: 10.
+2026-04-14 20:12:02,955 [INFO] jarvis.auto_trainer: Shutdown signal received — saving state and stopping...
+2026-04-14 20:12:04,964 [INFO] jarvis.auto_trainer: Shutdown signal received — saving state and stopping...
+2026-04-14 20:12:04,965 [INFO] httpx: HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-04-14 20:12:04,967 [INFO] jarvis.config.api_manager: API call succeeded with GEMINI_KEY_1
+2026-04-14 20:12:09,656 [INFO] jarvis.auto_trainer: Shutdown signal received — saving state and stopping...
+2026-04-14 20:12:09,659 [ERROR] jarvis.core.browser: Failed to start browser: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))
+2026-04-14 20:12:13,711 [WARNING] urllib3.connectionpool: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError("HTTPConnection(host='localhost', port=54191): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it")': /session/fc48d0452073db8775827666817102e4/url
+2026-04-14 20:13:18,288 [INFO] jarvis.training: TrainingLogger connected to Pinecone training index.
+2026-04-14 20:13:19,015 [INFO] jarvis.config.api_manager: Loaded GEMINI_KEY_1
+2026-04-14 20:13:19,015 [INFO] jarvis.config.api_manager: Loaded GEMINI_KEY_2
+2026-04-14 20:13:19,017 [INFO] jarvis.config.api_manager: Loaded GEMINI_KEY_3
+2026-04-14 20:13:19,017 [INFO] jarvis.config.api_manager: Loaded GEMINI_KEY_4
+2026-04-14 20:13:19,018 [INFO] jarvis.config.api_manager: Total keys loaded: 4
+2026-04-14 20:13:19,018 [INFO] jarvis.auto_trainer: JarvisExecutor initialized
+2026-04-14 20:13:19,019 [INFO] jarvis.auto_trainer: ============================================================
+2026-04-14 20:13:19,019 [INFO] jarvis.auto_trainer:   JARVIS AUTO-TRAINER STARTED
+2026-04-14 20:13:19,019 [INFO] jarvis.auto_trainer:   Confidence target: 95%
+2026-04-14 20:13:19,021 [INFO] jarvis.auto_trainer:   Sources: tasks.txt + past tasks + variations
+2026-04-14 20:13:19,021 [INFO] jarvis.auto_trainer: ============================================================
+2026-04-14 20:13:19,022 [INFO] jarvis.auto_trainer: Building training queue...
+2026-04-14 20:13:21,297 [WARNING] jarvis.training: Embed failed on key 0: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:21,406 [WARNING] jarvis.training: Embed failed on key 1: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:21,520 [WARNING] jarvis.training: Embed failed on key 2: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:21,624 [WARNING] jarvis.training: Embed failed on key 3: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:21,624 [ERROR] jarvis.auto_trainer: Failed to fetch past tasks: All Gemini keys failed during embedding.
+2026-04-14 20:13:21,625 [INFO] jarvis.auto_trainer: Loaded 22 tasks from tasks.txt
+2026-04-14 20:13:21,747 [WARNING] jarvis.training: Embed failed on key 0: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:21,857 [WARNING] jarvis.training: Embed failed on key 1: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:21,960 [WARNING] jarvis.training: Embed failed on key 2: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:22,079 [WARNING] jarvis.training: Embed failed on key 3: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:22,079 [ERROR] jarvis.auto_trainer: Failed to fetch past tasks: All Gemini keys failed during embedding.
+2026-04-14 20:13:22,080 [INFO] jarvis.auto_trainer: Loaded 0 past tasks from Pinecone
+2026-04-14 20:13:22,199 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:22,305 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:22,421 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:22,533 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:22,955 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:23,071 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:23,176 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:23,291 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:23,704 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:23,818 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:23,926 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:24,031 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:24,445 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:24,559 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:24,667 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:24,780 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:25,195 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:25,308 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:25,428 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:25,532 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:25,940 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:26,055 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:26,170 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:26,280 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:26,695 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:26,807 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:26,916 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:27,026 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:27,424 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:27,539 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:27,654 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:27,768 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:28,201 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:28,313 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:28,425 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:28,537 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:28,952 [WARNING] jarvis.auto_trainer: Variation generation failed (key 0): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:29,060 [WARNING] jarvis.auto_trainer: Variation generation failed (key 1): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:29,177 [WARNING] jarvis.auto_trainer: Variation generation failed (key 2): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:29,301 [WARNING] jarvis.auto_trainer: Variation generation failed (key 3): 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:29,602 [INFO] jarvis.auto_trainer: Generated 0 variations
+2026-04-14 20:13:29,602 [INFO] jarvis.auto_trainer: Total queue: 22 tasks
+2026-04-14 20:13:29,603 [INFO] jarvis.auto_trainer: Training task: open duckduckgo and search for privacy tools
+2026-04-14 20:13:29,720 [WARNING] jarvis.training: Embed failed on key 0: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:29,849 [WARNING] jarvis.training: Embed failed on key 1: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:29,966 [WARNING] jarvis.training: Embed failed on key 2: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:30,082 [WARNING] jarvis.training: Embed failed on key 3: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:30,084 [ERROR] jarvis.training: pre_task query failed: All Gemini keys failed during embedding.
+2026-04-14 20:13:30,088 [INFO] jarvis.auto_trainer:   Confidence: 0.00 | Skip: False
+2026-04-14 20:13:31,462 [INFO] jarvis.training: TrainingLogger connected to Pinecone training index.
+2026-04-14 20:13:31,462 [INFO] jarvis.core.task_manager: Starting task: open duckduckgo and search for privacy tools
+2026-04-14 20:13:31,574 [WARNING] jarvis.training: Embed failed on key 0: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:31,679 [WARNING] jarvis.training: Embed failed on key 1: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:31,789 [WARNING] jarvis.training: Embed failed on key 2: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:31,909 [WARNING] jarvis.training: Embed failed on key 3: 404 models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.
+2026-04-14 20:13:31,909 [ERROR] jarvis.training: pre_task query failed: All Gemini keys failed during embedding.
+2026-04-14 20:13:31,910 [INFO] jarvis.core.task_manager: Training pre-task: confidence=0.00 skip_screenshot=False
+2026-04-14 20:13:34,545 [INFO] jarvis.auto_trainer: Shutdown signal received — saving state and stopping...

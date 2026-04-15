@@ -8,7 +8,7 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from jarvis.self_improvement.gemini_analyzer import Improvement
 from jarvis.self_improvement.metrics_baseline import MetricsDelta
@@ -34,7 +34,7 @@ class SessionReport:
     delta: Optional[MetricsDelta]
     commit_hash: str
     branch: str
-    improvements: list[dict]      # serialisable dicts
+    improvements: List[dict]      # serialisable dicts
 
 
 class SessionLogger:

@@ -109,8 +109,8 @@ def main() -> None:
         # Always stop Playwright (does NOT close Chrome)
         try:
             controller.stop()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Warning: Cleanup error: {e}", file=sys.stderr)
 
     # 7. Summary
     duration = time.time() - start_time

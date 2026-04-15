@@ -202,7 +202,7 @@ class ChromeLauncher:
         pages = context.pages
         if index < 0 or index >= len(pages):
             raise IndexError(
-                f"Tab index {index} is out of range (0–{len(pages) - 1})."
+                f"Tab index {index} is out of range (0-{len(pages) - 1})."
             )
         page = pages[index]
         page.bring_to_front()

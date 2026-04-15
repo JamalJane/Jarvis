@@ -19,6 +19,6 @@ for i, key in enumerate(keys):
     try:
         client = genai.Client(api_key=key)
         resp = client.models.generate_content(model=model, contents=["Hello"])
-        print(f"KEY_{i+1} ({key[-6:]}): SUCCESS")
+        print(f"KEY_{i+1}: SUCCESS")
     except Exception as e:
-        print(f"KEY_{i+1} ({key[-6:]}): ERR - {e}")
+        print(f"KEY_{i+1}: ERR - {e}")

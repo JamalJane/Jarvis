@@ -86,7 +86,7 @@ class SafetyLayer:
         action_type = action.get("action", "unknown")
 
         if tier == 3:
-            print(f"\n⚠️  [TIER 3 - AUTONOMOUS EXECUTION]")
+            print("\n⚠️  [TIER 3 - AUTONOMOUS EXECUTION]")
             print(f"   Executing potentially destructive action: {action}")
             # User explicitly requested full autonomy without [y/n] blocks
 
@@ -162,7 +162,8 @@ class SafetyLayer:
             sx, sy = action["start_x"], action["start_y"]
             ex, ey = action["end_x"], action["end_y"]
             duration = action.get("duration", 0.5)
-            pyautogui.dragTo(ex, ey, duration=duration, startX=sx, startY=sy)
+            pyautogui.moveTo(sx, sy, duration=0.0)
+            pyautogui.dragTo(ex, ey, duration=duration)
             return {"dragged": {"from": (sx, sy), "to": (ex, ey)}}
 
         elif a == "screenshot":

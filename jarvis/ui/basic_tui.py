@@ -142,11 +142,17 @@ class BasicTUI:
         self.steps = []
         
         def run_it():
+            success = False
             try:
                 self.agent.run_task(line)
+                success = True
             except Exception as e:
-                pass
-            print(f"\n{GREEN}{BOLD}--- TASK COMPLETE. PRESS ENTER TO REFRESH ---{RESET}")
+                print(f"\n{RED}{BOLD}--- TASK FAILED: {e} ---{RESET}")
+            
+            if success:
+                print(f"\n{GREEN}{BOLD}--- TASK COMPLETE. PRESS ENTER TO REFRESH ---{RESET}")
+            else:
+                print(f"\n{RED}{BOLD}--- TASK FAILED. PRESS ENTER TO REFRESH ---{RESET}")
             print("> ", end="", flush=True)
 
         threading.Thread(target=run_it, daemon=True).start()
