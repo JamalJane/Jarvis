@@ -44,11 +44,11 @@ logger = logging.getLogger("jarvis.auto_trainer")
 
 TASKS_FILE = Path("tasks.txt")
 STATE_FILE = Path("trainer_state.json")
-IDLE_SLEEP_SEC = 30
+IDLE_SLEEP_SEC = 10
 VARIATION_BATCH = 3
 MAX_RETRIES = 2
 CONFIDENCE_TARGET = 0.95
-RATE_LIMIT_WAIT_SEC = 120
+RATE_LIMIT_WAIT_SEC = 60
 
 MODEL_PRIORITY = [
     "gemini-3.1-flash-lite",     # 15 RPM, 500 RPD
@@ -459,7 +459,12 @@ class AutoTrainer:
 
             if not queue:
                 logger.warning("Task queue empty — sleeping 60s before retry.")
-                time.sleep(60)
+                for _ in range(60):
+                    if self._stop.is_set():
+                        break
+                    time.sleep(1)
+                if self._stop.is_set():
+                    break
                 continue
 
             for i, task in enumerate(queue):
@@ -474,8 +479,13 @@ class AutoTrainer:
                 except Exception as e:
                     error_str = str(e).lower()
                     if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
-                        logger.warning(f"Rate limited - waiting {RATE_LIMIT_WAIT_SEC}s...")
-                        time.sleep(RATE_LIMIT_WAIT_SEC)
+                        logger.warning(f"Rate limited - waiting {RATE_LIMIT_WAIT_SEC}s (Ctrl+C to stop)...")
+                        for _ in range(RATE_LIMIT_WAIT_SEC):
+                            if self._stop.is_set():
+                                break
+                            time.sleep(1)
+                        if self._stop.is_set():
+                            break
                         continue
                     else:
                         logger.error(f"Task error: {e}")
@@ -487,7 +497,10 @@ class AutoTrainer:
                 if self.state["total_trained"] % 5 == 0:
                     print_stats(self.tl, self.state, all_tasks)
 
-                time.sleep(IDLE_SLEEP_SEC)
+                for _ in range(IDLE_SLEEP_SEC):
+                    if self._stop.is_set():
+                        break
+                    time.sleep(1)
 
             logger.info("Queue cycle complete — checking progress...")
 
