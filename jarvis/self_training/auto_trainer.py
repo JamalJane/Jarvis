@@ -221,7 +221,37 @@ class JarvisExecutor:
         self.automation = AutomationController()
         
         self.task_history = []
+        self._stop_requested = False
+        self._current_task_manager = None
         logger.info("JarvisExecutor initialized")
+    
+    def stop(self):
+        """Request the current task to stop."""
+        self._stop_requested = True
+        if self._current_task_manager:
+            self._current_task_manager._stop_requested = True
+        logger.info("Stop requested for current task")
+    
+    def reset_browser(self):
+        """Reset browser to blank page between tasks to avoid popup/stuck issues."""
+        try:
+            if self.browser and self.browser.is_running():
+                self.browser.navigate("about:blank")
+                time.sleep(1)
+                logger.info("Browser reset to blank page")
+        except Exception as e:
+            logger.warning(f"Browser reset failed: {e}")
+    
+    def dismiss_popups(self):
+        """Try to dismiss any popups by pressing Escape or clicking away."""
+        try:
+            if self.automation:
+                self.automation.press("esc")
+                time.sleep(0.5)
+                self.automation.press("esc")
+            logger.info("Dismissed popups")
+        except Exception as e:
+            logger.warning(f"Popup dismiss failed: {e}")
     
     def execute(self, task_description: str, past_steps: list = None, skip_screenshot: bool = False) -> dict:
         """
@@ -230,6 +260,8 @@ class JarvisExecutor:
         """
         from jarvis.core.task_manager import TaskManager, TaskResult
         
+        self._stop_requested = False
+        
         training_logger = TrainingLogger()
         task_manager = TaskManager(
             api_manager=self.api_manager,
@@ -237,6 +269,8 @@ class JarvisExecutor:
             automation=self.automation,
             training_logger=training_logger,
         )
+        task_manager._stop_requested = False
+        self._current_task_manager = task_manager
         
         try:
             result = task_manager.execute_task(task_description)
@@ -255,6 +289,8 @@ class JarvisExecutor:
                 "error_message": str(e),
                 "gemini_key_used": 0,
             }
+        finally:
+            self._current_task_manager = None
 
 
 def run_one_task(
@@ -418,8 +454,11 @@ class AutoTrainer:
         logger.info("=" * 60)
 
     def _handle_stop(self, *_):
-        logger.info("Shutdown signal received — saving state and stopping...")
+        logger.info("Shutdown signal received — stopping current task...")
         self._stop.set()
+        self.executor.stop()
+        self.executor.reset_browser()
+        logger.info("Current task stopped and browser reset")
 
     def _build_task_queue(self) -> list[str]:
         queue = []
@@ -487,6 +526,10 @@ class AutoTrainer:
                 if check_training_complete(self.state, all_tasks):
                     break
 
+                # Reset browser and dismiss popups before starting new task
+                self.executor.dismiss_popups()
+                self.executor.reset_browser()
+                
                 try:
                     run_one_task(task, self.tl, self.state, self.executor, key_index=key_index)
                 except Exception as e:
@@ -504,9 +547,12 @@ class AutoTrainer:
                     else:
                         logger.error(f"Task error: {e}")
                 
+                # Reset browser after task to avoid popup/stuck issues
+                self.executor.reset_browser()
+                
                 save_state(self.state)
 
-                key_index = (key_index + 1) % len(get_gemini_keys())
+                key_index = (key_index + 1) % max(1, len(get_gemini_keys()))
 
                 if self.state["total_trained"] % 5 == 0:
                     print_stats(self.tl, self.state, all_tasks)

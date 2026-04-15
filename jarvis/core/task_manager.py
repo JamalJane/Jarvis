@@ -67,6 +67,7 @@ class TaskManager:
         self._gemini_key_used: int = 0
         self._repair_attempted: bool = False
         self._repair_succeeded: bool = False
+        self._stop_requested: bool = False
 
     def execute_task(self, task_description: str, conversation_context: str = "") -> TaskResult:
         logger.info(f"Starting task: {task_description}")
@@ -115,8 +116,15 @@ class TaskManager:
         max_iterations = 50
         iterations = 0
         final_message = None
+        
+        # Try to dismiss any popups at start
+        try:
+            if self.automation:
+                self.automation.press("esc")
+        except Exception:
+            pass
 
-        while iterations < max_iterations:
+        while iterations < max_iterations and not self._stop_requested:
             iterations += 1
 
             screenshot_base64 = self._capture_context()
