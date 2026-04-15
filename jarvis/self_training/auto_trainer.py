@@ -169,15 +169,14 @@ Example: ["variation one", "variation two", "variation three"]
         logger.warning("No Gemini keys available for variations")
         return []
 
-    all_rate_limited = True
+    total_keys = len(keys)
     
-    for ki in range(len(keys)):
-        key = keys[(key_index + ki) % len(keys)]
+    for ki_offset in range(total_keys):
+        ki = (key_index + ki_offset) % total_keys
+        key = keys[ki]
         if not key:
             continue
             
-        key_rate_limited = True
-        
         for model in MODEL_PRIORITY:
             try:
                 client = genai.Client(api_key=key)
@@ -194,22 +193,18 @@ Example: ["variation one", "variation two", "variation three"]
 
                 variations = json.loads(text.strip())
                 if isinstance(variations, list):
-                    logger.info(f"Variations generated with {model} on key {ki}")
+                    logger.info(f"Variations: {model} on key {ki} SUCCESS")
                     return [v for v in variations if isinstance(v, str)][:n]
             except Exception as e:
                 error_str = str(e).lower()
                 if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
-                    logger.info(f"Rate limited on key {ki} with {model} - trying next model...")
+                    logger.info(f"Rate limited: key {ki}, {model} - next...")
                     continue
-                key_rate_limited = False
-                logger.warning(f"Generation failed (key {ki}, {model}): {e}")
+                logger.warning(f"Failed: key {ki}, {model} - {e}")
         
-        if key_rate_limited:
-            logger.info(f"All models exhausted on key {ki} - switching to next key")
-        else:
-            break
+        logger.info(f"All models exhausted on key {ki}")
     
-    logger.warning("All keys and models exhausted for variations")
+    logger.warning("All keys/models exhausted - skipping variations")
     return []
 
 
@@ -497,13 +492,14 @@ class AutoTrainer:
                 except Exception as e:
                     error_str = str(e).lower()
                     if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
-                        logger.warning(f"Rate limited - waiting {RATE_LIMIT_WAIT_SEC}s (Ctrl+C to stop)...")
+                        logger.warning(f"Rate limited on key {key_index} - waiting {RATE_LIMIT_WAIT_SEC}s...")
                         for _ in range(RATE_LIMIT_WAIT_SEC):
                             if self._stop.is_set():
                                 break
                             time.sleep(1)
                         if self._stop.is_set():
                             break
+                        key_index = (key_index + 1) % max(1, len(get_gemini_keys()))
                         continue
                     else:
                         logger.error(f"Task error: {e}")
