@@ -36,6 +36,8 @@ wheels/
 
 # Logs
 logs/*.log
+jarvis_training.log
+trainer_state.json
 
 # OS
 .DS_Store

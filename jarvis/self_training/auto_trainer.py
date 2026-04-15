@@ -168,6 +168,9 @@ def fetch_past_tasks_from_pinecone(tl: TrainingLogger, limit: int = 30) -> list[
 
 def generate_variations(task: str, key_index: int = 0, n: int = VARIATION_BATCH) -> list[str]:
     """Generate task variations with model-fallback. Returns empty list if all exhausted."""
+    if n <= 0:
+        return []
+    
     from google import genai
     
     prompt = f"""
@@ -467,7 +470,7 @@ class AutoTrainer:
         logger.info("=" * 60)
         logger.info("  JARVIS AUTO-TRAINER STARTED")
         logger.info(f"  Confidence target: {CONFIDENCE_TARGET:.0%}")
-        logger.info(f"  Sources: tasks.txt + past tasks + variations")
+        logger.info(f"  Sources: tasks.txt + past tasks + variations({VARIATION_BATCH})")
         logger.info(f"  Daily requests: {self.state.get('daily_total_requests', 0)}")
         logger.info("=" * 60)
     
@@ -526,17 +529,21 @@ class AutoTrainer:
                 queue.append(task)
         logger.info(f"Loaded {len(past_tasks)} past tasks from Pinecone")
 
-        seed_tasks = random.sample(queue, min(len(queue), 10)) if queue else []
-        all_variations = []
-        for seed in seed_tasks:
-            if self._stop.is_set():
-                break
-            variations = generate_variations(seed, key_index=0, n=VARIATION_BATCH)
-            all_variations.extend(variations)
-            time.sleep(0.3)
+        if VARIATION_BATCH > 0:
+            seed_tasks = random.sample(queue, min(len(queue), 10)) if queue else []
+            all_variations = []
+            for seed in seed_tasks:
+                if self._stop.is_set():
+                    break
+                variations = generate_variations(seed, key_index=0, n=VARIATION_BATCH)
+                all_variations.extend(variations)
+                time.sleep(0.3)
 
-        queue.extend(all_variations)
-        logger.info(f"Generated {len(all_variations)} variations")
+            queue.extend(all_variations)
+            logger.info(f"Generated {len(all_variations)} variations")
+        else:
+            logger.info("Variations disabled (VARIATION_BATCH=0)")
+        
         logger.info(f"Total queue: {len(queue)} tasks")
 
         random.shuffle(queue)
