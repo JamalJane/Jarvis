@@ -30,6 +30,7 @@ load_dotenv()
 
 from jarvis.self_training.training_logger import TrainingLogger, _embed
 from jarvis.self_training.config import SIMILARITY_THRESHOLD
+from jarvis.config.constants import API_KEYS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -48,12 +49,11 @@ VARIATION_BATCH = 3
 MAX_RETRIES = 2
 CONFIDENCE_TARGET = 0.95
 RATE_LIMIT_WAIT_SEC = 120
-GEMINI_KEYS = [
-    os.getenv("GEMINI_KEY_1"),
-    os.getenv("GEMINI_KEY_2"),
-    os.getenv("GEMINI_KEY_3"),
-    os.getenv("GEMINI_KEY_4"),
-]
+
+
+def get_gemini_keys() -> list:
+    """Load Gemini keys dynamically like the original Jarvis."""
+    return [os.getenv(key) for key in API_KEYS if os.getenv(key)]
 
 
 def load_state() -> dict:
@@ -149,9 +149,10 @@ Respond ONLY with a JSON array of {n} strings. No explanation.
 Example: ["variation one", "variation two", "variation three"]
 """.strip()
 
-    for ki in range(len(GEMINI_KEYS)):
+    keys = get_gemini_keys()
+    for ki in range(len(keys)):
         try:
-            key = GEMINI_KEYS[(key_index + ki) % len(GEMINI_KEYS)]
+            key = keys[(key_index + ki) % len(keys)]
             if not key:
                 continue
             client = genai.Client(api_key=key)
@@ -173,7 +174,7 @@ Example: ["variation one", "variation two", "variation three"]
             error_str = str(e).lower()
             if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
                 logger.info(f"Rate limited on key {ki} - skipping variations")
-                return []  # Graceful skip
+                return []
             logger.warning(f"Variation generation failed (key {ki}): {e}")
     
     return []
@@ -466,7 +467,7 @@ class AutoTrainer:
                 
                 save_state(self.state)
 
-                key_index = (key_index + 1) % len(GEMINI_KEYS)
+                key_index = (key_index + 1) % len(get_gemini_keys())
 
                 if self.state["total_trained"] % 5 == 0:
                     print_stats(self.tl, self.state, all_tasks)
