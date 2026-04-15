@@ -43,11 +43,11 @@ logger = logging.getLogger("jarvis.auto_trainer")
 
 TASKS_FILE = Path("tasks.txt")
 STATE_FILE = Path("trainer_state.json")
-IDLE_SLEEP_SEC = 5
+IDLE_SLEEP_SEC = 30
 VARIATION_BATCH = 3
 MAX_RETRIES = 2
 CONFIDENCE_TARGET = 0.95
-RATE_LIMIT_WAIT_SEC = 60
+RATE_LIMIT_WAIT_SEC = 120
 GEMINI_KEYS = [
     os.getenv("GEMINI_KEY_1"),
     os.getenv("GEMINI_KEY_2"),
@@ -135,7 +135,7 @@ def fetch_past_tasks_from_pinecone(tl: TrainingLogger, limit: int = 30) -> list[
         return []
 
 
-def generate_variations(task: str, key_index: int = 0, n: int = VARIATION_BATCH, max_attempts: int = 1) -> list[str]:
+def generate_variations(task: str, key_index: int = 0, n: int = VARIATION_BATCH) -> list[str]:
     """Generate task variations. Returns empty list if rate limited (graceful degradation)."""
     from google import genai
     
@@ -149,33 +149,32 @@ Respond ONLY with a JSON array of {n} strings. No explanation.
 Example: ["variation one", "variation two", "variation three"]
 """.strip()
 
-    for attempt in range(max_attempts):
-        for ki in range(len(GEMINI_KEYS)):
-            try:
-                key = GEMINI_KEYS[(key_index + ki) % len(GEMINI_KEYS)]
-                if not key:
-                    continue
-                client = genai.Client(api_key=key)
-                response = client.models.generate_content(
-                    model="gemini-2.0-flash-lite-001",
-                    contents=[prompt]
-                )
-                text = response.text.strip()
+    for ki in range(len(GEMINI_KEYS)):
+        try:
+            key = GEMINI_KEYS[(key_index + ki) % len(GEMINI_KEYS)]
+            if not key:
+                continue
+            client = genai.Client(api_key=key)
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-lite-001",
+                contents=[prompt]
+            )
+            text = response.text.strip()
 
-                if text.startswith("```"):
-                    text = text.split("```")[1]
-                    if text.startswith("json"):
-                        text = text[4:]
+            if text.startswith("```"):
+                text = text.split("```")[1]
+                if text.startswith("json"):
+                    text = text[4:]
 
-                variations = json.loads(text.strip())
-                if isinstance(variations, list):
-                    return [v for v in variations if isinstance(v, str)][:n]
-            except Exception as e:
-                error_str = str(e).lower()
-                if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
-                    logger.info(f"Rate limited on key {ki} - skipping variations (will train on base tasks only)")
-                    return []  # Graceful skip
-                logger.warning(f"Variation generation failed (key {ki}): {e}")
+            variations = json.loads(text.strip())
+            if isinstance(variations, list):
+                return [v for v in variations if isinstance(v, str)][:n]
+        except Exception as e:
+            error_str = str(e).lower()
+            if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
+                logger.info(f"Rate limited on key {ki} - skipping variations")
+                return []  # Graceful skip
+            logger.warning(f"Variation generation failed (key {ki}): {e}")
     
     return []
 
