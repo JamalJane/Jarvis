@@ -68,7 +68,16 @@ def get_gemini_keys() -> list:
 def load_state() -> dict:
     if STATE_FILE.exists():
         try:
-            return json.loads(STATE_FILE.read_text())
+            data = json.loads(STATE_FILE.read_text())
+            # Reset daily usage if it's a new day
+            today = datetime.now().strftime("%Y-%m-%d")
+            if data.get("usage_date") != today:
+                data["key_usage"] = {str(i): {"requests": 0, "errors": 0, "exhausted": False} for i in range(5)}
+                data["usage_date"] = today
+                data["daily_total_requests"] = 0
+                data["daily_success"] = 0
+                data["daily_failures"] = 0
+            return data
         except Exception:
             pass
     return {
@@ -81,6 +90,11 @@ def load_state() -> dict:
         "last_task": None,
         "confidence_scores": {},
         "training_complete": False,
+        "usage_date": datetime.now().strftime("%Y-%m-%d"),
+        "key_usage": {str(i): {"requests": 0, "errors": 0, "exhausted": False} for i in range(5)},
+        "daily_total_requests": 0,
+        "daily_success": 0,
+        "daily_failures": 0,
     }
 
 
@@ -443,11 +457,9 @@ class AutoTrainer:
     def __init__(self):
         self.tl = TrainingLogger()
         self.state = load_state()
+        self.key_usage = {int(k): v for k, v in self.state.get("key_usage", {}).items()}
         self.executor = JarvisExecutor()
         self._stop = threading.Event()
-        
-        # Track key usage
-        self.key_usage = {i: {"requests": 0, "errors": 0, "exhausted": False} for i in range(5)}
 
         signal.signal(signal.SIGINT, self._handle_stop)
         signal.signal(signal.SIGTERM, self._handle_stop)
@@ -456,20 +468,28 @@ class AutoTrainer:
         logger.info("  JARVIS AUTO-TRAINER STARTED")
         logger.info(f"  Confidence target: {CONFIDENCE_TARGET:.0%}")
         logger.info(f"  Sources: tasks.txt + past tasks + variations")
+        logger.info(f"  Daily requests: {self.state.get('daily_total_requests', 0)}")
         logger.info("=" * 60)
     
     def track_key_usage(self, key_index: int, success: bool = True):
         """Track API key usage."""
-        if key_index in self.key_usage:
-            self.key_usage[key_index]["requests"] += 1
-            if not success:
-                self.key_usage[key_index]["errors"] += 1
-            logger.info(f"Key {key_index + 1}: {self.key_usage[key_index]['requests']} requests, {self.key_usage[key_index]['errors']} errors")
+        if key_index not in self.key_usage:
+            self.key_usage[key_index] = {"requests": 0, "errors": 0, "exhausted": False}
+        self.key_usage[key_index]["requests"] += 1
+        self.state["daily_total_requests"] = self.state.get("daily_total_requests", 0) + 1
+        if success:
+            self.state["daily_success"] = self.state.get("daily_success", 0) + 1
+        else:
+            self.key_usage[key_index]["errors"] += 1
+            self.state["daily_failures"] = self.state.get("daily_failures", 0) + 1
+        self.state["key_usage"] = {str(k): v for k, v in self.key_usage.items()}
+        logger.info(f"Key {key_index + 1}: {self.key_usage[key_index]['requests']} requests, {self.key_usage[key_index]['errors']} errors")
     
     def mark_key_exhausted(self, key_index: int):
         """Mark a key as exhausted."""
         if key_index in self.key_usage:
             self.key_usage[key_index]["exhausted"] = True
+            self.state["key_usage"] = {str(k): v for k, v in self.key_usage.items()}
             logger.warning(f"Key {key_index + 1} marked as EXHAUSTED")
     
     def all_keys_exhausted(self) -> bool:
@@ -477,12 +497,13 @@ class AutoTrainer:
         keys = get_gemini_keys()
         if not keys:
             return True
-        return all(self.key_usage[i]["exhausted"] for i in range(len(keys)))
+        return all(self.key_usage.get(i, {}).get("exhausted", False) for i in range(len(keys)))
     
     def reset_exhausted_keys(self):
         """Reset exhausted keys after waiting period."""
         for i in self.key_usage:
             self.key_usage[i]["exhausted"] = False
+        self.state["key_usage"] = {str(k): v for k, v in self.key_usage.items()}
         logger.info("All keys reset - ready to continue")
 
     def _handle_stop(self, *_):
