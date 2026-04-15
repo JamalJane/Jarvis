@@ -1,0 +1,33 @@
+# Jarvis training tasks — one task per line
+# Lines starting with # are ignored
+# Add anything you want Jarvis to get good at
+
+# ── Search tasks ──────────────────────────────────────────────────────────────
+search google for python tutorials
+search google for latest AI news
+search google for weather in New York
+search bing for javascript documentation
+search google for best free tools for developers
+
+# ── Navigation tasks ──────────────────────────────────────────────────────────
+open youtube and search for lo-fi music
+go to reddit.com and read the top post on r/technology
+open wikipedia and search for artificial intelligence
+go to github.com and search for open source python projects
+open hacker news and find the top story
+go to bbc.com and read a headline
+open cnn.com and find the latest news
+
+# ── Data extraction tasks ──────────────────────────────────────────────────────
+scrape the top 5 headlines from bbc.com
+get the current bitcoin price from coinmarketcap
+find the top trending topics on twitter
+get the latest posts from r/programming on reddit
+extract product names from the first page of amazon search results for "mechanical keyboard"
+
+# ── Form / interaction tasks ──────────────────────────────────────────────────
+go to google.com and search for open source projects
+open duckduckgo and search for privacy tools
+search github for trending python repositories
+look up the definition of machine learning on wikipedia
+find the top result for "best python libraries 2025" on google

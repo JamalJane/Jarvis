@@ -22,6 +22,8 @@ from jarvis.memory.local_store import LocalMemoryStore
 from jarvis.ui.display import Display
 from jarvis.self_improvement.agent import SelfImprovementAgent
 from jarvis.self_improvement.session_lock import SessionLock
+from jarvis.self_training import TrainingLogger
+from jarvis.self_training.config import SIMILARITY_THRESHOLD
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +65,7 @@ class Jarvis:
             automation=self.automation,
             pinecone_store=pinecone,
             google_services=self.google_services,
+            training_logger=self.training_logger,
         )
 
         # Context overflow protection
@@ -77,6 +80,14 @@ class Jarvis:
         # Self-improvement agent (Step 28)
         self.self_improvement = SelfImprovementAgent()
         self._si_lock = SessionLock()
+
+        # Self-training logger (behavior learning)
+        try:
+            self.training_logger = TrainingLogger()
+            logger.info("Self-training logger initialized")
+        except Exception as e:
+            logger.warning(f"Failed to initialize training logger: {e}")
+            self.training_logger = None
 
     # ------------------------------------------------------------------ #
     # BOOT                                                                  #
@@ -224,6 +235,25 @@ class Jarvis:
             print(f"  {_G}Auto self-improvement enabled.{_RST}")
             return True
 
+        if command == "/training":
+            if not arg:
+                stats = self.training_logger.get_stats() if self.training_logger else {}
+                print(f"\n  Self-training stats:")
+                print(f"  Total vectors: {stats.get('total_vectors', 'N/A')}")
+                print(f"  Auto-repair: {'enabled' if (self.training_logger and self.training_logger.auto_repair_enabled) else 'disabled'}")
+                print(f"  Similarity threshold: {SIMILARITY_THRESHOLD}")
+            elif arg == "on":
+                if self.training_logger:
+                    self.training_logger.auto_repair_enabled = True
+                print(f"  {_G}Auto-repair enabled.{_RST}")
+            elif arg == "off":
+                if self.training_logger:
+                    self.training_logger.auto_repair_enabled = False
+                print(f"  {_Y}Auto-repair disabled.{_RST}")
+            else:
+                print(f"{_Y}  Usage: /training [on|off]{_RST}")
+            return True
+
         if command == "/help":
             print(f"""
 {_B}  Jarvis REPL Commands:{_RST}
@@ -240,6 +270,11 @@ class Jarvis:
   /revert               Undo last self-improvement commit (git revert HEAD)
   /improvements-off     Disable future auto-improvement sessions
   /improvements-on      Re-enable auto-improvement sessions
+
+{_B}  Self-Training:{_RST}
+  /training             Show training stats
+  /training on          Enable auto-repair on failures
+  /training off         Disable auto-repair
 
   /help                 Show this help
   exit / quit           Shut down

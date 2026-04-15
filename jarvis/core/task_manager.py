@@ -52,23 +52,45 @@ class TaskResult:
 
 
 class TaskManager:
-    def __init__(self, api_manager, browser=None, automation=None, pinecone_store=None, google_services=None):
+    def __init__(self, api_manager, browser=None, automation=None, pinecone_store=None, google_services=None, training_logger=None):
         self.api_manager = api_manager
         self.browser = browser
         self.automation = automation
         self.pinecone_store = pinecone_store
         self.google_services = google_services  # Gmail / Calendar / Docs
+        self.training_logger = training_logger
         self.task_history: List[dict] = []
         self.current_task: Optional[str] = None
         self.actions_completed = 0
+        self._training_context: dict = {}
+        self._task_start_time: float = 0.0
+        self._gemini_key_used: int = 0
+        self._repair_attempted: bool = False
+        self._repair_succeeded: bool = False
 
     def execute_task(self, task_description: str, conversation_context: str = "") -> TaskResult:
         logger.info(f"Starting task: {task_description}")
         self.current_task = task_description
         self.actions_completed = 0
+        self._task_start_time = time.time()
+        self._repair_attempted = False
+        self._repair_succeeded = False
+
+        self._training_context = {}
+        if self.training_logger:
+            try:
+                self._training_context = self.training_logger.pre_task(task_description)
+                logger.info(
+                    f"Training pre-task: confidence={self._training_context.get('confidence', 0):.2f} "
+                    f"skip_screenshot={self._training_context.get('skip_screenshot', False)}"
+                )
+            except Exception as e:
+                logger.warning(f"Training pre_task failed: {e}")
 
         try:
             actions_completed, final_message = self._run_task_loop(task_description, conversation_context)
+            outcome = "success" if actions_completed > 0 else "failure"
+            self._log_training_outcome(task_description, outcome)
             return TaskResult(
                 task_name=task_description,
                 actions_completed=actions_completed,
@@ -78,6 +100,9 @@ class TaskManager:
             )
         except Exception as e:
             logger.error(f"Task failed: {e}")
+            if self.training_logger and self.training_logger.auto_repair_enabled:
+                self._attempt_auto_repair(task_description)
+            self._log_training_outcome(task_description, "failure", error=str(e))
             return TaskResult(
                 task_name=task_description,
                 actions_completed=self.actions_completed,
@@ -372,3 +397,59 @@ Otherwise respond with only one of these actions:
             return ""
         import hashlib
         return hashlib.md5(screenshot_bytes).hexdigest()
+
+    def _log_training_outcome(self, task_description: str, outcome: str, error: Optional[str] = None):
+        """Log task outcome to TrainingLogger after task completion."""
+        if not self.training_logger:
+            return
+
+        try:
+            duration_ms = int((time.time() - self._task_start_time) * 1000)
+            steps_taken = [h['action'] for h in self.task_history]
+
+            dom_snapshot = None
+            if self.browser and self.browser.is_running():
+                try:
+                    dom_snapshot = self.browser.get_page_source()
+                except Exception:
+                    pass
+
+            self.training_logger.post_task(
+                task_description=task_description,
+                steps_taken=steps_taken,
+                outcome=outcome,
+                confidence_before=self._training_context.get('confidence', 0.0),
+                duration_ms=duration_ms,
+                dom_snapshot=dom_snapshot,
+                gemini_key_used=self._gemini_key_used,
+                error_message=error,
+                repair_attempted=self._repair_attempted,
+                repair_succeeded=self._repair_succeeded,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to log training outcome: {e}")
+
+    def _attempt_auto_repair(self, task_description: str):
+        """Attempt to self-repair a failed task."""
+        if not self.training_logger or not self.task_history:
+            return
+
+        self._repair_attempted = True
+        logger.info("Attempting auto-repair...")
+
+        try:
+            failed_steps = [h['action'] for h in self.task_history]
+            error_msg = "Task execution failed - auto-repair triggered"
+
+            corrected = self.training_logger.attempt_repair(
+                task_description=task_description,
+                failed_steps=failed_steps,
+                error_message=error_msg,
+                key_index=self._gemini_key_used,
+            )
+
+            if corrected:
+                logger.info(f"Auto-repair suggested {len(corrected)} corrected steps")
+                self._repair_succeeded = False
+        except Exception as e:
+            logger.warning(f"Auto-repair failed: {e}")
