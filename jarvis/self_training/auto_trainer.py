@@ -121,6 +121,10 @@ def load_tasks_file() -> list[str]:
 
 
 def fetch_past_tasks_from_pinecone(tl: TrainingLogger, limit: int = 30) -> list[str]:
+    if not tl.index:
+        logger.info("Pinecone index not available, skipping past tasks")
+        return []
+    
     try:
         dummy_embed = _embed("automation task web browser")
         results = tl.index.query(
@@ -138,7 +142,11 @@ def fetch_past_tasks_from_pinecone(tl: TrainingLogger, limit: int = 30) -> list[
         logger.info(f"Fetched {len(tasks)} past tasks from Pinecone")
         return tasks
     except Exception as e:
-        logger.error(f"Failed to fetch past tasks: {e}")
+        error_str = str(e)
+        if "dimension" in error_str.lower():
+            logger.warning("Pinecone index dimension mismatch - training index needs recreation. Skipping past tasks.")
+        else:
+            logger.error(f"Failed to fetch past tasks: {e}")
         return []
 
 
@@ -161,11 +169,15 @@ Example: ["variation one", "variation two", "variation three"]
         logger.warning("No Gemini keys available for variations")
         return []
 
+    all_rate_limited = True
+    
     for ki in range(len(keys)):
         key = keys[(key_index + ki) % len(keys)]
         if not key:
             continue
             
+        key_rate_limited = True
+        
         for model in MODEL_PRIORITY:
             try:
                 client = genai.Client(api_key=key)
@@ -189,7 +201,13 @@ Example: ["variation one", "variation two", "variation three"]
                 if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
                     logger.info(f"Rate limited on key {ki} with {model} - trying next model...")
                     continue
+                key_rate_limited = False
                 logger.warning(f"Generation failed (key {ki}, {model}): {e}")
+        
+        if key_rate_limited:
+            logger.info(f"All models exhausted on key {ki} - switching to next key")
+        else:
+            break
     
     logger.warning("All keys and models exhausted for variations")
     return []

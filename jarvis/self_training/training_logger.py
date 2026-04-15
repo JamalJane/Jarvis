@@ -43,9 +43,17 @@ def _get_pinecone_index():
     
     try:
         pc = Pinecone(api_key=PINECONE_API_KEY)
-        existing = [i.name for i in pc.list_indexes()]
+        existing = {i.name: i for i in pc.list_indexes()}
+        
+        if TRAINING_INDEX_NAME in existing:
+            stats = pc.describe_index(TRAINING_INDEX_NAME)
+            if stats.dimension != EMBED_DIM:
+                logger.warning(f"Index dimension mismatch ({stats.dimension} vs {EMBED_DIM}). Deleting and recreating...")
+                pc.delete_index(TRAINING_INDEX_NAME)
+                existing = {}
+        
         if TRAINING_INDEX_NAME not in existing:
-            logger.info(f"Creating training index: {TRAINING_INDEX_NAME}")
+            logger.info(f"Creating training index: {TRAINING_INDEX_NAME} (dim={EMBED_DIM})")
             pc.create_index(
                 name=TRAINING_INDEX_NAME,
                 dimension=EMBED_DIM,
