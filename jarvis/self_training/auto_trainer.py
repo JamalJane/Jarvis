@@ -50,6 +50,13 @@ MAX_RETRIES = 2
 CONFIDENCE_TARGET = 0.95
 RATE_LIMIT_WAIT_SEC = 120
 
+MODEL_PRIORITY = [
+    "gemini-3.1-flash-lite",     # 15 RPM, 500 RPD
+    "gemini-2.5-flash",          # 5 RPM, 250K TPM, 20 RPD
+    "gemini-2.0-flash",           # 30 RPM, 15K TPM, 14.4K RPD
+    "gemini-2.0-flash-lite-001",  # 10 RPM, 250K TPM, 20 RPD
+]
+
 
 def get_gemini_keys() -> list:
     """Load Gemini keys dynamically like the original Jarvis."""
@@ -136,7 +143,7 @@ def fetch_past_tasks_from_pinecone(tl: TrainingLogger, limit: int = 30) -> list[
 
 
 def generate_variations(task: str, key_index: int = 0, n: int = VARIATION_BATCH) -> list[str]:
-    """Generate task variations. Returns empty list if rate limited (graceful degradation)."""
+    """Generate task variations with model-fallback. Returns empty list if all exhausted."""
     from google import genai
     
     prompt = f"""
@@ -150,33 +157,41 @@ Example: ["variation one", "variation two", "variation three"]
 """.strip()
 
     keys = get_gemini_keys()
+    if not keys:
+        logger.warning("No Gemini keys available for variations")
+        return []
+
     for ki in range(len(keys)):
-        try:
-            key = keys[(key_index + ki) % len(keys)]
-            if not key:
-                continue
-            client = genai.Client(api_key=key)
-            response = client.models.generate_content(
-                model="gemini-2.0-flash-lite-001",
-                contents=[prompt]
-            )
-            text = response.text.strip()
+        key = keys[(key_index + ki) % len(keys)]
+        if not key:
+            continue
+            
+        for model in MODEL_PRIORITY:
+            try:
+                client = genai.Client(api_key=key)
+                response = client.models.generate_content(
+                    model=model,
+                    contents=[prompt]
+                )
+                text = response.text.strip()
 
-            if text.startswith("```"):
-                text = text.split("```")[1]
-                if text.startswith("json"):
-                    text = text[4:]
+                if text.startswith("```"):
+                    text = text.split("```")[1]
+                    if text.startswith("json"):
+                        text = text[4:]
 
-            variations = json.loads(text.strip())
-            if isinstance(variations, list):
-                return [v for v in variations if isinstance(v, str)][:n]
-        except Exception as e:
-            error_str = str(e).lower()
-            if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
-                logger.info(f"Rate limited on key {ki} - skipping variations")
-                return []
-            logger.warning(f"Variation generation failed (key {ki}): {e}")
+                variations = json.loads(text.strip())
+                if isinstance(variations, list):
+                    logger.info(f"Variations generated with {model} on key {ki}")
+                    return [v for v in variations if isinstance(v, str)][:n]
+            except Exception as e:
+                error_str = str(e).lower()
+                if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
+                    logger.info(f"Rate limited on key {ki} with {model} - trying next model...")
+                    continue
+                logger.warning(f"Generation failed (key {ki}, {model}): {e}")
     
+    logger.warning("All keys and models exhausted for variations")
     return []
 
 
