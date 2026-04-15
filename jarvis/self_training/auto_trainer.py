@@ -135,7 +135,8 @@ def fetch_past_tasks_from_pinecone(tl: TrainingLogger, limit: int = 30) -> list[
         return []
 
 
-def generate_variations(task: str, key_index: int = 0, n: int = VARIATION_BATCH, max_attempts: int = 3) -> list[str]:
+def generate_variations(task: str, key_index: int = 0, n: int = VARIATION_BATCH, max_attempts: int = 1) -> list[str]:
+    """Generate task variations. Returns empty list if rate limited (graceful degradation)."""
     from google import genai
     
     prompt = f"""
@@ -172,16 +173,9 @@ Example: ["variation one", "variation two", "variation three"]
             except Exception as e:
                 error_str = str(e).lower()
                 if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
-                    retry_delay = float(attempt + 1) * 10
-                    logger.warning(f"Rate limited on key {ki}, waiting {retry_delay}s before retry...")
-                    time.sleep(retry_delay)
-                    continue
+                    logger.info(f"Rate limited on key {ki} - skipping variations (will train on base tasks only)")
+                    return []  # Graceful skip
                 logger.warning(f"Variation generation failed (key {ki}): {e}")
-        
-        if attempt < max_attempts - 1:
-            wait_time = (attempt + 1) * 30
-            logger.warning(f"All keys rate limited, waiting {wait_time}s...")
-            time.sleep(wait_time)
     
     return []
 
@@ -465,7 +459,7 @@ class AutoTrainer:
                 except Exception as e:
                     error_str = str(e).lower()
                     if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
-                        logger.warning(f"Rate limited! Waiting {RATE_LIMIT_WAIT_SEC}s before retry...")
+                        logger.warning(f"Rate limited - waiting {RATE_LIMIT_WAIT_SEC}s...")
                         time.sleep(RATE_LIMIT_WAIT_SEC)
                         continue
                     else:
