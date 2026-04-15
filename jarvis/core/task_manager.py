@@ -411,8 +411,8 @@ Otherwise respond with only one of these actions:
             if self.browser and self.browser.is_running():
                 try:
                     dom_snapshot = self.browser.get_page_source()
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"Failed to capture DOM snapshot: {e}")
 
             self.training_logger.post_task(
                 task_description=task_description,

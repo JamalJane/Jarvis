@@ -10,7 +10,7 @@ import base64
 import io
 import logging
 import time
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -39,7 +39,8 @@ class GeminiClient:
     """
 
     MODEL = "gemini-2.5-flash"
-    EST = timezone(timedelta(hours=-5))  # Eastern Standard Time offset
+    from zoneinfo import ZoneInfo
+    EASTERN = ZoneInfo("America/New_York")  # Handles EST/EDT automatically
 
     def __init__(self):
         self.keys = [
@@ -61,7 +62,7 @@ class GeminiClient:
     # ── Internal helpers ──────────────────────────────────────────────────────
 
     def _today_est(self) -> str:
-        return datetime.now(self.EST).strftime("%Y-%m-%d")
+        return datetime.now(self.EASTERN).strftime("%Y-%m-%d")
 
     def _check_midnight_reset(self):
         """Reset rotation back to key 0 at midnight EST each day."""

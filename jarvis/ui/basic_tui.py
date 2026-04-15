@@ -66,10 +66,10 @@ class BasicTUI:
         current = task_state.status if task_state else "Idle"
         
         right_lines.append(f"Action:  {current}")
-        right_lines.append(f"Screen: -")
+        right_lines.append("Screen: -")
         right_lines.append(f"Step:   {len(self.steps)}")
-        right_lines.append(f"Keys:   K1:OK  K2:ACTIVE  K3:OK  K4:OK")
-        right_lines.append(f"Safety: AUTO")
+        right_lines.append("Keys:   K1:OK  K2:ACTIVE  K3:OK  K4:OK")
+        right_lines.append("Safety: AUTO")
         
         # Print side by side
         max_lines = max(len(left_lines), len(right_lines))
@@ -102,7 +102,9 @@ class BasicTUI:
             print("\nExiting JARVIS...")
             import os
             os._exit(0)
-        except Exception:
+        except Exception as e:
+            import logging
+            logging.debug(f"Input handling error: {e}")
             return
         
         if not line:

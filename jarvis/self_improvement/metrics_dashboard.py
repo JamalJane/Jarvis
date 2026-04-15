@@ -45,16 +45,18 @@ class MetricsDashboard:
             app   = s.get("improvements_applied", "?")
             commit = s.get("commit_hash", "")[:10] or "—"
 
-            speed_val = f"{speed:+.1f}%" if speed else "—"
-            token_val = f"{token:+.1f}%" if token else "—"
+            speed_val = f"{speed:+.1f}%" if speed is not None else "—"
+            token_val = f"{token:+.1f}%" if token is not None else "—"
 
             speed_aligned = f"{speed_val:>9}"
             token_aligned = f"{token_val:>9}"
 
-            speed_str = (f"{_G}{speed_aligned}{_RST}" if speed and speed > 0
-                         else f"{_R}{speed_aligned}{_RST}" if speed else f"{_DIM}{speed_aligned}{_RST}")
-            token_str = (f"{_G}{token_aligned}{_RST}" if token and token < 0
-                         else f"{_R}{token_aligned}{_RST}" if token else f"{_DIM}{token_aligned}{_RST}")
+            speed_str = (f"{_G}{speed_aligned}{_RST}" if speed is not None and speed > 0
+                         else f"{_R}{speed_aligned}{_RST}" if speed is not None and speed < 0
+                         else f"{_DIM}{speed_aligned}{_RST}")
+            token_str = (f"{_G}{token_aligned}{_RST}" if token is not None and token < 0
+                         else f"{_R}{token_aligned}{_RST}" if token is not None and token > 0
+                         else f"{_DIM}{token_aligned}{_RST}")
 
             print(f"  {date:<22} {str(imp):>5} {str(app):>5} {speed_str:>9} {token_str:>9} {commit:<12}")
 

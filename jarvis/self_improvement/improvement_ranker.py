@@ -1,8 +1,8 @@
 """
-improvement_ranker.py — scores and sorts improvements by safety × impact.
+improvement_ranker.py — scores and sorts improvements by safety x impact. 
 
-High-risk items are always sorted last so low/medium risk changes are applied
-first. This minimises the blast radius if a later change fails.
+Improvements are scored; high-risk items are penalized and tend to rank lower
+to minimise the blast radius if a later change fails.
 """
 
 import logging
@@ -19,13 +19,13 @@ def _score(imp: Improvement) -> float:
 
     impact     = average of speed and token estimates (0-100 scale)
     safety_inv = risk weight (Low=1.0, Medium=0.5, High=0.0)
-    simplicity = 1 / (1 + len(proposed_code))  — shorter patch is simpler
+    simplicity = 1 / (1 + len(proposed_code))  - shorter patch is simpler
     """
     impact     = (imp.speed_estimate + imp.token_estimate) / 2.0
     safety_inv = _RISK_WEIGHT.get(imp.risk_level, 0.0)
     simplicity = 1.0 / (1.0 + len(imp.proposed_code))
 
-    return (impact * 0.5) + (safety_inv * 0.3) + (simplicity * 0.2)  # safety dominates
+    return (impact * 0.5) + (safety_inv * 0.3) + (simplicity * 0.2)  # impact dominates (weight 0.5)
 
 
 class ImprovementRanker:
