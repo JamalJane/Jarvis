@@ -44,6 +44,7 @@ IDLE_SLEEP_SEC = 5
 VARIATION_BATCH = 3
 MAX_RETRIES = 2
 CONFIDENCE_TARGET = 0.95
+RATE_LIMIT_WAIT_SEC = 60
 GEMINI_KEYS = [
     os.getenv("GEMINI_KEY_1"),
     os.getenv("GEMINI_KEY_2"),
@@ -131,7 +132,7 @@ def fetch_past_tasks_from_pinecone(tl: TrainingLogger, limit: int = 30) -> list[
         return []
 
 
-def generate_variations(task: str, key_index: int = 0, n: int = VARIATION_BATCH) -> list[str]:
+def generate_variations(task: str, key_index: int = 0, n: int = VARIATION_BATCH, max_attempts: int = 3) -> list[str]:
     from google import genai
     
     prompt = f"""
@@ -144,29 +145,41 @@ Respond ONLY with a JSON array of {n} strings. No explanation.
 Example: ["variation one", "variation two", "variation three"]
 """.strip()
 
-    for attempt in range(len(GEMINI_KEYS)):
-        try:
-            key = GEMINI_KEYS[(key_index + attempt) % len(GEMINI_KEYS)]
-            if not key:
-                continue
-            client = genai.Client(api_key=key)
-            response = client.models.generate_content(
-                model="gemini-2.0-flash-lite-001",
-                contents=[prompt]
-            )
-            text = response.text.strip()
+    for attempt in range(max_attempts):
+        for ki in range(len(GEMINI_KEYS)):
+            try:
+                key = GEMINI_KEYS[(key_index + ki) % len(GEMINI_KEYS)]
+                if not key:
+                    continue
+                client = genai.Client(api_key=key)
+                response = client.models.generate_content(
+                    model="gemini-2.0-flash-lite-001",
+                    contents=[prompt]
+                )
+                text = response.text.strip()
 
-            if text.startswith("```"):
-                text = text.split("```")[1]
-                if text.startswith("json"):
-                    text = text[4:]
+                if text.startswith("```"):
+                    text = text.split("```")[1]
+                    if text.startswith("json"):
+                        text = text[4:]
 
-            variations = json.loads(text.strip())
-            if isinstance(variations, list):
-                return [v for v in variations if isinstance(v, str)][:n]
-        except Exception as e:
-            logger.warning(f"Variation generation failed (key {attempt}): {e}")
-
+                variations = json.loads(text.strip())
+                if isinstance(variations, list):
+                    return [v for v in variations if isinstance(v, str)][:n]
+            except Exception as e:
+                error_str = str(e).lower()
+                if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
+                    retry_delay = float(attempt + 1) * 10
+                    logger.warning(f"Rate limited on key {ki}, waiting {retry_delay}s before retry...")
+                    time.sleep(retry_delay)
+                    continue
+                logger.warning(f"Variation generation failed (key {ki}): {e}")
+        
+        if attempt < max_attempts - 1:
+            wait_time = (attempt + 1) * 30
+            logger.warning(f"All keys rate limited, waiting {wait_time}s...")
+            time.sleep(wait_time)
+    
     return []
 
 
@@ -444,7 +457,17 @@ class AutoTrainer:
                 if check_training_complete(self.state, all_tasks):
                     break
 
-                run_one_task(task, self.tl, self.state, self.executor, key_index=key_index)
+                try:
+                    run_one_task(task, self.tl, self.state, self.executor, key_index=key_index)
+                except Exception as e:
+                    error_str = str(e).lower()
+                    if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
+                        logger.warning(f"Rate limited! Waiting {RATE_LIMIT_WAIT_SEC}s before retry...")
+                        time.sleep(RATE_LIMIT_WAIT_SEC)
+                        continue
+                    else:
+                        logger.error(f"Task error: {e}")
+                
                 save_state(self.state)
 
                 key_index = (key_index + 1) % len(GEMINI_KEYS)
