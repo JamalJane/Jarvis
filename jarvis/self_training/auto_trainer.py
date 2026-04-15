@@ -51,10 +51,10 @@ CONFIDENCE_TARGET = 0.95
 RATE_LIMIT_WAIT_SEC = 60
 
 MODEL_PRIORITY = [
-    "gemini-3.1-flash-lite",     # 15 RPM, 500 RPD
     "gemini-2.5-flash",          # 5 RPM, 250K TPM, 20 RPD
-    "gemini-2.0-flash",           # 30 RPM, 15K TPM, 14.4K RPD
-    "gemini-2.0-flash-lite-001",  # 10 RPM, 250K TPM, 20 RPD
+    "gemini-2.0-flash",          # 30 RPM, 15K TPM, 14.4K RPD
+    "gemini-2.0-flash-lite-001", # 10 RPM, 250K TPM, 20 RPD
+    "gemini-flash-latest",       # fallback
 ]
 
 
