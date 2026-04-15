@@ -57,6 +57,8 @@ MODEL_PRIORITY = [
     "gemini-flash-latest",       # fallback
 ]
 
+KEY_EXHAUSTED_WAIT_SEC = 300  # 5 minutes when all keys exhausted
+
 
 def get_gemini_keys() -> list:
     """Load Gemini keys dynamically like the original Jarvis."""
@@ -443,6 +445,9 @@ class AutoTrainer:
         self.state = load_state()
         self.executor = JarvisExecutor()
         self._stop = threading.Event()
+        
+        # Track key usage
+        self.key_usage = {i: {"requests": 0, "errors": 0, "exhausted": False} for i in range(5)}
 
         signal.signal(signal.SIGINT, self._handle_stop)
         signal.signal(signal.SIGTERM, self._handle_stop)
@@ -452,6 +457,33 @@ class AutoTrainer:
         logger.info(f"  Confidence target: {CONFIDENCE_TARGET:.0%}")
         logger.info(f"  Sources: tasks.txt + past tasks + variations")
         logger.info("=" * 60)
+    
+    def track_key_usage(self, key_index: int, success: bool = True):
+        """Track API key usage."""
+        if key_index in self.key_usage:
+            self.key_usage[key_index]["requests"] += 1
+            if not success:
+                self.key_usage[key_index]["errors"] += 1
+            logger.info(f"Key {key_index + 1}: {self.key_usage[key_index]['requests']} requests, {self.key_usage[key_index]['errors']} errors")
+    
+    def mark_key_exhausted(self, key_index: int):
+        """Mark a key as exhausted."""
+        if key_index in self.key_usage:
+            self.key_usage[key_index]["exhausted"] = True
+            logger.warning(f"Key {key_index + 1} marked as EXHAUSTED")
+    
+    def all_keys_exhausted(self) -> bool:
+        """Check if all keys are exhausted."""
+        keys = get_gemini_keys()
+        if not keys:
+            return True
+        return all(self.key_usage[i]["exhausted"] for i in range(len(keys)))
+    
+    def reset_exhausted_keys(self):
+        """Reset exhausted keys after waiting period."""
+        for i in self.key_usage:
+            self.key_usage[i]["exhausted"] = False
+        logger.info("All keys reset - ready to continue")
 
     def _handle_stop(self, *_):
         logger.info("Shutdown signal received — stopping current task...")
@@ -491,6 +523,7 @@ class AutoTrainer:
 
     def run(self):
         key_index = 0
+        consecutive_exhausted = 0
 
         while not self._stop.is_set():
             logger.info("Building training queue...")
@@ -532,17 +565,41 @@ class AutoTrainer:
                 
                 try:
                     run_one_task(task, self.tl, self.state, self.executor, key_index=key_index)
+                    self.track_key_usage(key_index, success=True)
                 except Exception as e:
                     error_str = str(e).lower()
                     if "429" in error_str or "rate limit" in error_str or "resource_exhausted" in error_str:
-                        logger.warning(f"Rate limited on key {key_index} - waiting {RATE_LIMIT_WAIT_SEC}s...")
+                        self.track_key_usage(key_index, success=False)
+                        self.mark_key_exhausted(key_index)
+                        logger.warning(f"Key {key_index} EXHAUSTED - waiting {RATE_LIMIT_WAIT_SEC}s...")
+                        
+                        # Wait for this key to recover
                         for _ in range(RATE_LIMIT_WAIT_SEC):
                             if self._stop.is_set():
                                 break
                             time.sleep(1)
+                        
                         if self._stop.is_set():
                             break
+                        
+                        # Switch to next key
                         key_index = (key_index + 1) % max(1, len(get_gemini_keys()))
+                        
+                        # Check if ALL keys exhausted
+                        if self.all_keys_exhausted():
+                            consecutive_exhausted += 1
+                            logger.warning(f"All keys exhausted! Waiting {KEY_EXHAUSTED_WAIT_SEC}s before retry...")
+                            for _ in range(KEY_EXHAUSTED_WAIT_SEC):
+                                if self._stop.is_set():
+                                    break
+                                time.sleep(1)
+                            
+                            if self._stop.is_set():
+                                break
+                            
+                            # Reset all keys after wait
+                            self.reset_exhausted_keys()
+                            consecutive_exhausted = 0
                         continue
                     else:
                         logger.error(f"Task error: {e}")
@@ -562,10 +619,22 @@ class AutoTrainer:
                         break
                     time.sleep(1)
 
-            logger.info("Queue cycle complete — checking progress...")
+            # Reset browser after queue cycle
+            self.executor.reset_browser()
+            logger.info("Queue cycle complete — rebuilding...")
 
         save_state(self.state)
+        self.executor.reset_browser()
         print_stats(self.tl, self.state, all_tasks)
+        
+        # Print final key usage
+        logger.info("=" * 60)
+        logger.info("  FINAL KEY USAGE")
+        for i, usage in self.key_usage.items():
+            if usage["requests"] > 0:
+                logger.info(f"  Key {i+1}: {usage['requests']} requests, {usage['errors']} errors, exhausted={usage['exhausted']}")
+        logger.info("=" * 60)
+        
         logger.info("Auto-trainer stopped.")
 
 
